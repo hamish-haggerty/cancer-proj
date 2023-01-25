@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "cancer-proj"
+  site-url: "https://hamish-haggerty.github.io/cancer-proj"
+  description: "Cancer BT"
+  repo-branch: main
+  repo-url: "https://github.com/hamish-haggerty/cancer-proj"
