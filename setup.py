@@ -42,7 +42,7 @@ setuptools.setup(
     packages = setuptools.find_packages(),
     include_package_data = True,
     #install_requires = requirements,   install_requires=["base_rbt @ git+https://github.com/hamish-haggerty/base_rbt.git"]
-    intall_requires = requirements,
+    install_requires = requirements,
     #install_requires = ["base_rbt@git+https://github.com/hamish-haggerty/base_rbt.git#egg=base_rbt"],
     extras_require={ 'dev': dev_requirements },
     dependency_links = cfg.get('dep_links','').split(),
