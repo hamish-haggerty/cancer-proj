@@ -3,6 +3,10 @@
 # %% auto 0
 __all__ = ['predict_model', 'classification_report_wrapper', 'print_confusion_matrix', 'plot_roc']
 
+# %% ../nbs/cancer_metrics.ipynb 5
+from fastai.vision.all import *
+import torch
+
 # %% ../nbs/cancer_metrics.ipynb 6
 #Fine tune and predict
 
