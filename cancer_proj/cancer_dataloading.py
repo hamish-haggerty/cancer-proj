@@ -188,7 +188,7 @@ def get_resnet_encoder(model,n_in=3):
     model.add_module('flatten', torch.nn.Flatten())
     return model
 
-def create_model(which_model=None,ps=8192,n_in=3):
+def create_model(which_model,device,ps=8192,n_in=3):
 
     #pretrained=True if 'which_model' in ['bt_pretrain', 'supervised_pretrain'] else False
 
