@@ -42,7 +42,7 @@ def predict_model(xval,yval,model,aug_pipelines_test,numavg=3):
 # %% ../nbs/cancer_metrics.ipynb 7
 def predict_ensemble(yval,scores1,scores2):
 
-    N=xval.shape[0]
+    N=yval.shape[0]
 
     scores = 0.5*scores1 + 0.5*scores2
 
