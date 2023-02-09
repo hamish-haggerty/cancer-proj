@@ -3,7 +3,8 @@
 # %% auto 0
 __all__ = ['colab_train_dir', 'colab_test_dir', 'local_train_dir', 'local_test_dir', 'BYOL_Augs', 'TUNE_Augs', 'Val_Augs',
            'get_file_lists', 'extract_text', 'label_func', 'get_difference', 'get_fnames_dict', 'get_data_dict',
-           'get_fnames_dls_dict', 'get_resnet_encoder', 'create_model', 'create_aug_pipelines']
+           'get_fnames_dls_dict', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'get_resnet_encoder', 'create_model',
+           'create_aug_pipelines']
 
 # %% ../nbs/cancer_dataloading.ipynb 4
 import fastai
@@ -97,9 +98,12 @@ def get_fnames_dict(train_dir,test_dir,class_names):
             count_dict2[st]+=1
             
 
+
     fnames_valid = get_difference(fnames_train,fnames_tune)
 
     fnames_test = get_difference(fnames,fnames_train) + get_image_files(test_dir)
+
+    fnames_train = fnames_tune
 
     return {'fnames':fnames,'fnames_train':fnames_train,'fnames_tune':fnames_tune,
             'fnames_valid':fnames_valid,
@@ -107,8 +111,7 @@ def get_fnames_dict(train_dir,test_dir,class_names):
             }
 
 
-
-# %% ../nbs/cancer_dataloading.ipynb 12
+# %% ../nbs/cancer_dataloading.ipynb 11
 def get_data_dict(fnames_dict,train_dir,test_dir, #basic stuff needed
                   device,bs_val,bs=256,bs_tune=256,size=128,n_in=3 #hyperparameters
                  ):
@@ -159,7 +162,7 @@ def get_data_dict(fnames_dict,train_dir,test_dir, #basic stuff needed
                 }
 
 
-# %% ../nbs/cancer_dataloading.ipynb 13
+# %% ../nbs/cancer_dataloading.ipynb 12
 def get_fnames_dls_dict(train_dir,test_dir,
                         device,bs_val,bs=256,bs_tune=256,size=128,n_in=3,
                         ):
@@ -181,6 +184,20 @@ def get_fnames_dls_dict(train_dir,test_dir,
     return d
 
 
+
+# %% ../nbs/cancer_dataloading.ipynb 13
+import pickle
+
+def save_dict_to_gdrive(d,filename):
+    filename = '/content/drive/My Drive/' + filename + '.pkl'
+    with open(filename, 'wb') as handle:
+        pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def load_dict_from_gdrive(filename):
+    filepath = '/content/drive/My Drive/' + filename + '.pkl'
+    with open(filepath, 'rb') as handle:
+        return pickle.load(handle)
 
 # %% ../nbs/cancer_dataloading.ipynb 17
 def get_resnet_encoder(model,n_in=3):
