@@ -84,6 +84,8 @@ class main_train:
                  pretrain, #Whether to fit BT
                  num_epochs, #number of BT fit epochs
                  numfit, #number of tune_fit epochs
+                 freeze_num_epochs, #How many epochs to freeze body for when training BT
+                 freeze_numfit, #How many epochs to freeze body for when fine tuning
                  ps=8192, #projection size
                  n_in=3, #color channels
                  indim=2048, #dimension output of encoder (2048 for resnet50)
@@ -105,18 +107,18 @@ class main_train:
                  #self.tuned_model_path = f'/content/drive/My Drive/models/baselinefinetuned_initial_weights={self.initial_weights}_pretrain={self.pretrain}.pth'
 
     @staticmethod
-    def fit(learn,fit_type,epochs,initial_weights):
+    def fit(learn,fit_type,epochs,freeze_epochs,initial_weights):
         """We can patch in a modification, e.g. if we want subtype of fine_tune:supervised_pretrain to be different
         to fine_tune:bt_pretrain"""
 
         if fit_type == 'encoder_fine_tune': #i.e. barlow twins
 
-            learn.encoder_fine_tune(epochs,freeze_epochs=3) 
+            learn.encoder_fine_tune(epochs,freeze_epochs=freeze_epochs) 
 
         elif fit_type == 'fine_tune':
             
             #elif initial_weights == 'supervised_pretrain':
-            learn.linear_fine_tune(epochs,freeze_epochs=1) 
+            learn.linear_fine_tune(epochs,freeze_epochs=freeze_epochs) 
 
         else: raise Exception('Fit policy not of expected form')
 
@@ -135,7 +137,11 @@ class main_train:
         if self.pretrain: #train encoder according to fit policy
 
             learn = Learner(self.dls_train,bt_model,splitter=my_splitter_bt,cbs=[BarlowTwins(self.aug_pipelines,n_in=self.n_in,lmb=1/self.ps,print_augs=False)])
-            main_train.fit(learn,fit_type='encoder_fine_tune',epochs=self.num_epochs,initial_weights=self.initial_weights)
+            main_train.fit(learn,fit_type='encoder_fine_tune',
+                           epochs=self.num_epochs,freeze_epochs=self.freeze_num_epochs,
+                           initial_weights=self.initial_weights
+                          )
+            
         self.encoder = bt_model.encoder
 
     def fine_tune(self):
@@ -155,7 +161,10 @@ class main_train:
         #debugging
         #learn = Learner(self.dls_tune,model,cbs = [LinearBt(aug_pipelines=self.aug_pipelines_tune,n_in=self.n_in)],wd=0.0)
 
-        main_train.fit(learn,fit_type='fine_tune',epochs=self.numfit,initial_weights=self.initial_weights) #fine tuning (don't confuse this with fit policy!)
+        main_train.fit(learn,fit_type='fine_tune',
+                       epochs=self.numfit,freeze_epochs=self.freeze_numfit,
+                       initial_weights=self.initial_weights
+                      ) #fine tuning (don't confuse this with fit policy!)
         scores,preds, acc = predict_model(self.xval,self.yval,model=model,aug_pipelines_test=self.aug_pipelines_test,numavg=3)
         #metrics dict will have f1 score, auc etc etc
         metrics = classification_report_wrapper(preds, self.yval, self.vocab, print_report=self.print_report)
