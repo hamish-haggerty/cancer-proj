@@ -91,8 +91,12 @@ class main_train:
                  print_report=False, #F1 metrics etc
                  print_plot=False, #ROC curve
                  ):
-                 store_attr()
-                 self.vocab = self.dls_valid.vocab
+        store_attr()
+        self.vocab = self.dls_valid.vocab
+        self.device = 'cuda' if torch.cuda.is_available else 'cpu'
+
+                
+                 
 
                  #Soon we might want to save some models here:
 
