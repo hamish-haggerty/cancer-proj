@@ -130,7 +130,7 @@ class main_train:
             bt_model.cuda()
 
         except AttributeError: #otherwise, create
-            bt_model,encoder = create_model(which_model=self.initial_weights,ps=self.ps,device=device)
+            bt_model,encoder = create_model(which_model=self.initial_weights,ps=self.ps,device=self.device)
 
         if self.pretrain: #train encoder according to fit policy
 
