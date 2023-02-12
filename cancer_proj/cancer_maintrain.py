@@ -153,7 +153,7 @@ class main_train:
             encoder = self.encoder
         
         except AttributeError:
-            _,self.encoder = create_model(which_model=self.initial_weights,ps=self.ps,device=device)
+            _,self.encoder = create_model(which_model=self.initial_weights,ps=self.ps,device=self.device)
 
         model = LM(self.encoder)
         learn = Learner(self.dls_tune,model,splitter=my_splitter,cbs = [LinearBt(aug_pipelines=self.aug_pipelines_tune,n_in=self.n_in)],wd=0.0)

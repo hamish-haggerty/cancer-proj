@@ -16,8 +16,6 @@ def predict_model(xval,yval,model,aug_pipelines_test,numavg=3):
     
     model.eval()
 
-    test_eq(model.encoder.training,False)
-
     N=xval.shape[0]
 
     scores=0

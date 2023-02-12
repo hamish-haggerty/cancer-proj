@@ -3,8 +3,8 @@
 # %% auto 0
 __all__ = ['colab_train_dir', 'colab_test_dir', 'local_train_dir', 'local_test_dir', 'BYOL_Augs', 'TUNE_Augs', 'Val_Augs',
            'get_file_lists', 'extract_text', 'label_func', 'get_difference', 'get_fnames_dict', 'get_data_dict',
-           'get_fnames_dls_dict', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'get_resnet_encoder', 'create_model',
-           'create_aug_pipelines']
+           'get_fnames_dls_dict', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'tensor_to_np', 'get_resnet_encoder',
+           'create_model', 'create_aug_pipelines']
 
 # %% ../nbs/cancer_dataloading.ipynb 4
 import fastai
@@ -186,20 +186,26 @@ def get_fnames_dls_dict(train_dir,test_dir,
 
 
 # %% ../nbs/cancer_dataloading.ipynb 13
-import pickle
+# Save the dictionary to Google Drive
+def save_dict_to_gdrive(d, filename):
+    filepath = '/content/drive/My Drive/' + filename + '.pkl'
+    with open(filename, "wb") as f:
+        pickle.dump(results, f)
 
-def save_dict_to_gdrive(d,filename):
-    filename = '/content/drive/My Drive/' + filename + '.pkl'
-    with open(filename, 'wb') as handle:
-        pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-
+# Load the dictionary from Google Drive
 def load_dict_from_gdrive(filename):
     filepath = '/content/drive/My Drive/' + filename + '.pkl'
-    with open(filepath, 'rb') as handle:
-        return pickle.load(handle)
+    with open(filename, "rb") as f:
+        return pickle.load(f)
 
-# %% ../nbs/cancer_dataloading.ipynb 17
+
+# %% ../nbs/cancer_dataloading.ipynb 14
+import numpy as np
+
+def tensor_to_np(tensor_image):
+    return tensor_image.cpu().numpy()
+
+# %% ../nbs/cancer_dataloading.ipynb 18
 def get_resnet_encoder(model,n_in=3):
     model = create_body(model, n_in=n_in, pretrained=False, cut=len(list(model.children()))-1)
     model.add_module('flatten', torch.nn.Flatten())
@@ -228,7 +234,7 @@ def create_model(which_model,device,ps=8192,n_in=3):
 
     return model,encoder
 
-# %% ../nbs/cancer_dataloading.ipynb 19
+# %% ../nbs/cancer_dataloading.ipynb 20
 BYOL_Augs = dict(flip_p1=0.5,flip_p2=0.5,jitter_p1=0.8,jitter_p2=0.8,bw_p1=0.2,
                 bw_p2=0.2,blur_p1=1.0,blur_p2=0.1,sol_p1=0.0,sol_p2=0.2,noise_p1=0.0,
                 noise_p2=0.0,resize_scale=(0.7, 1.0),resize_ratio=(3/4, 4/3),rotate_deg=45.0,
