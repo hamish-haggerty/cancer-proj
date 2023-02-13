@@ -6,23 +6,23 @@ __all__ = ['colab_train_dir', 'colab_test_dir', 'local_train_dir', 'local_test_d
            'get_fnames_dls_dict', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'tensor_to_np', 'get_resnet_encoder',
            'create_model', 'create_aug_pipelines']
 
-# %% ../nbs/cancer_dataloading.ipynb 4
+# %% ../nbs/cancer_dataloading.ipynb 5
 import fastai
 from fastai.vision.all import *
 from base_rbt.base_model import * #probably don't need this whole thing...
 from base_rbt.base_linear import show_linear_batch
 
-# %% ../nbs/cancer_dataloading.ipynb 5
+# %% ../nbs/cancer_dataloading.ipynb 6
 #colab
 colab_train_dir='skin_cancer_ISIC/Train'
 colab_test_dir='skin_cancer_ISIC/Test'
 
-# %% ../nbs/cancer_dataloading.ipynb 6
+# %% ../nbs/cancer_dataloading.ipynb 7
 #local
 local_train_dir='/Users/hamishhaggerty/Downloads/skin_cancer_ISIC/Train'
 local_test_dir='/Users/hamishhaggerty/Downloads/skin_cancer_ISIC/Test'
 
-# %% ../nbs/cancer_dataloading.ipynb 8
+# %% ../nbs/cancer_dataloading.ipynb 9
 #Seems all we need here is class_names?
 
 def get_file_lists(train_dir):
@@ -45,7 +45,7 @@ def get_file_lists(train_dir):
     return {'image_file_list':image_file_list, 'image_label_list':image_label_list, 'num_total':num_total, 'num_class':num_class, 'class_names':class_names}
 
 
-# %% ../nbs/cancer_dataloading.ipynb 9
+# %% ../nbs/cancer_dataloading.ipynb 10
 #Helper functions to extract class names from the filenames
 import re
 def extract_text(string):
@@ -69,7 +69,7 @@ def get_difference(x1, x2):
     return list(set(x1) - set(x2))
 
 
-# %% ../nbs/cancer_dataloading.ipynb 10
+# %% ../nbs/cancer_dataloading.ipynb 11
 def get_fnames_dict(train_dir,test_dir,class_names):
     "get dictionary of fnames"
 
@@ -111,7 +111,7 @@ def get_fnames_dict(train_dir,test_dir,class_names):
             }
 
 
-# %% ../nbs/cancer_dataloading.ipynb 11
+# %% ../nbs/cancer_dataloading.ipynb 12
 def get_data_dict(fnames_dict,train_dir,test_dir, #basic stuff needed
                   device,bs_val,bs=256,bs_tune=256,size=128,n_in=3 #hyperparameters
                  ):
@@ -162,7 +162,7 @@ def get_data_dict(fnames_dict,train_dir,test_dir, #basic stuff needed
                 }
 
 
-# %% ../nbs/cancer_dataloading.ipynb 12
+# %% ../nbs/cancer_dataloading.ipynb 13
 def get_fnames_dls_dict(train_dir,test_dir,
                         device,bs_val,bs=256,bs_tune=256,size=128,n_in=3,
                         ):
@@ -185,7 +185,7 @@ def get_fnames_dls_dict(train_dir,test_dir,
 
 
 
-# %% ../nbs/cancer_dataloading.ipynb 13
+# %% ../nbs/cancer_dataloading.ipynb 14
 # Save the dictionary to Google Drive
 def save_dict_to_gdrive(d, filename):
     filepath = '/content/drive/My Drive/' + filename + '.pkl'
@@ -199,17 +199,18 @@ def load_dict_from_gdrive(filename):
         return pickle.load(f)
 
 
-# %% ../nbs/cancer_dataloading.ipynb 14
+# %% ../nbs/cancer_dataloading.ipynb 15
 import numpy as np
 
 def tensor_to_np(tensor_image):
     return tensor_image.cpu().numpy()
 
-# %% ../nbs/cancer_dataloading.ipynb 18
+# %% ../nbs/cancer_dataloading.ipynb 19
 def get_resnet_encoder(model,n_in=3):
     model = create_body(model, n_in=n_in, pretrained=False, cut=len(list(model.children()))-1)
     model.add_module('flatten', torch.nn.Flatten())
     return model
+
 
 def create_model(which_model,device,ps=8192,n_in=3):
 
@@ -234,7 +235,7 @@ def create_model(which_model,device,ps=8192,n_in=3):
 
     return model,encoder
 
-# %% ../nbs/cancer_dataloading.ipynb 20
+# %% ../nbs/cancer_dataloading.ipynb 21
 BYOL_Augs = dict(flip_p1=0.5,flip_p2=0.5,jitter_p1=0.8,jitter_p2=0.8,bw_p1=0.2,
                 bw_p2=0.2,blur_p1=1.0,blur_p2=0.1,sol_p1=0.0,sol_p2=0.2,noise_p1=0.0,
                 noise_p2=0.0,resize_scale=(0.7, 1.0),resize_ratio=(3/4, 4/3),rotate_deg=45.0,
