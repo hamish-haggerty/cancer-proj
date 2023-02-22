@@ -3,8 +3,8 @@
 # %% auto 0
 __all__ = ['colab_train_dir', 'colab_test_dir', 'local_train_dir', 'local_test_dir', 'BYOL_Augs', 'TUNE_Augs', 'Val_Augs',
            'get_file_lists', 'extract_text', 'label_func', 'get_difference', 'get_fnames_dict', 'get_data_dict',
-           'get_fnames_dls_dict', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'tensor_to_np', 'get_resnet_encoder',
-           'create_model', 'create_aug_pipelines']
+           'get_fnames_dls_dict', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'tensor_to_np', 'seed_everything',
+           'get_resnet_encoder', 'create_model', 'create_aug_pipelines']
 
 # %% ../nbs/cancer_dataloading.ipynb 5
 import fastai
@@ -184,20 +184,21 @@ def get_fnames_dls_dict(train_dir,test_dir,
     return d
 
 
-
 # %% ../nbs/cancer_dataloading.ipynb 14
-# Save the dictionary to Google Drive
-def save_dict_to_gdrive(d, filename):
-    filepath = '/content/drive/My Drive/' + filename + '.pkl'
-    with open(filename, "wb") as f:
-        pickle.dump(results, f)
+import pickle
 
-# Load the dictionary from Google Drive
-def load_dict_from_gdrive(filename):
-    filepath = '/content/drive/My Drive/' + filename + '.pkl'
-    with open(filename, "rb") as f:
-        return pickle.load(f)
+def save_dict_to_gdrive(d,directory, filename):
+    #e.g. directory='/content/drive/My Drive/random_initial_weights'
+    filepath = directory + '/' + filename + '.pkl'
+    with open(filepath, "wb") as f:
+        pickle.dump(d, f)
 
+def load_dict_from_gdrive(directory,filename):
+    #e.g. directory='/content/drive/My Drive/random_initial_weights'
+    filepath = directory + '/' + filename + '.pkl'
+    with open(filepath, "rb") as f:
+        d = pickle.load(f)
+    return d
 
 # %% ../nbs/cancer_dataloading.ipynb 15
 import numpy as np
@@ -205,7 +206,17 @@ import numpy as np
 def tensor_to_np(tensor_image):
     return tensor_image.cpu().numpy()
 
-# %% ../nbs/cancer_dataloading.ipynb 18
+# %% ../nbs/cancer_dataloading.ipynb 16
+def seed_everything(TORCH_SEED):
+    random.seed(TORCH_SEED)
+    os.environ['PYTHONHASHSEED'] = str(TORCH_SEED)
+    np.random.seed(TORCH_SEED)
+    torch.manual_seed(TORCH_SEED)
+    torch.cuda.manual_seed_all(TORCH_SEED)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+# %% ../nbs/cancer_dataloading.ipynb 22
 def get_resnet_encoder(model,n_in=3):
     model = create_body(model, n_in=n_in, pretrained=False, cut=len(list(model.children()))-1)
     model.add_module('flatten', torch.nn.Flatten())
@@ -235,7 +246,7 @@ def create_model(which_model,device,ps=8192,n_in=3):
 
     return model,encoder
 
-# %% ../nbs/cancer_dataloading.ipynb 20
+# %% ../nbs/cancer_dataloading.ipynb 24
 BYOL_Augs = dict(flip_p1=0.5,flip_p2=0.5,jitter_p1=0.8,jitter_p2=0.8,bw_p1=0.2,
                 bw_p2=0.2,blur_p1=1.0,blur_p2=0.1,sol_p1=0.0,sol_p2=0.2,noise_p1=0.0,
                 noise_p2=0.0,resize_scale=(0.7, 1.0),resize_ratio=(3/4, 4/3),rotate_deg=45.0,

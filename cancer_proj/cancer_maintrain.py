@@ -137,6 +137,7 @@ class main_train:
                           )
             
         self.encoder = bt_model.encoder
+        self.bt_model = bt_model
 
     def fine_tune(self):
         "fine tune in supervised fashion, according to tune_fit_policy, and get metrics"
