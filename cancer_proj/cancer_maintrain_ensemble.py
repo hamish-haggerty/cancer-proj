@@ -10,6 +10,8 @@ from base_rbt.all import *
 from .cancer_dataloading import *
 from .cancer_metrics import *
 from .cancer_maintrain import *
+from self_supervised.augmentations import assert_aug_pipelines
+from self_supervised.layers import create_mlp_module
 
 # %% ../nbs/cancer_maintrain_ensemble.ipynb 10
 class P4BarlowTwinsModel(Module):
