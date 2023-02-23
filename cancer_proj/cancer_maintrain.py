@@ -104,17 +104,27 @@ class main_train:
         """We can patch in a modification, e.g. if we want subtype of fine_tune:supervised_pretrain to be different
         to fine_tune:bt_pretrain"""
 
+
         if fit_type == 'encoder_fine_tune': #i.e. barlow twins
 
-            learn.encoder_fine_tune(epochs,freeze_epochs=freeze_epochs) 
+            #learn.encoder_fine_tune(epochs,freeze_epochs=freeze_epochs)
+            lr_max=0.0030199517495930195
+            print(f'lr_max={lr_max}')
+            learn.fit_one_cycle(epochs,lr_max= lr_max)
 
         elif fit_type == 'fine_tune':
-            
-            #elif initial_weights == 'supervised_pretrain':
-            learn.linear_fine_tune(epochs,freeze_epochs=freeze_epochs) 
-            #learn.fine_tune(epochs,freeze_epochs=freeze_epochs)
+
+            if pretrain == False:
+                print('pretrain was False, and about to fit_one_cycle')
+                learn.fit_one_cycle(epochs,lr_max=0.00027542) 
+
+            elif pretrain == True:
+                print('pretrain was True, and about to linear_fine_tune')
+                learn.linear_fine_tune(epochs,freeze_epochs=freeze_epochs) #This gave very similar performance, when pretrain=False (see above / earlier commit)
+
 
         else: raise Exception('Fit policy not of expected form')
+        
 
     def train_encoder(self):
         "create encoder and (optionally, if pretrain=True) train with BT algorithm, according to fit_policy"
