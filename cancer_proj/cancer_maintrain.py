@@ -100,7 +100,7 @@ class main_train:
 
  
     @staticmethod
-    def fit(learn,fit_type,epochs,freeze_epochs,initial_weights):
+    def fit(learn,fit_type,epochs,freeze_epochs,initial_weights,pretrain):
         """We can patch in a modification, e.g. if we want subtype of fine_tune:supervised_pretrain to be different
         to fine_tune:bt_pretrain"""
 
@@ -143,7 +143,8 @@ class main_train:
             learn = Learner(self.dls_train,bt_model,splitter=my_splitter_bt,cbs=[BarlowTwins(self.aug_pipelines,n_in=self.n_in,lmb=1/self.ps,print_augs=False)])
             main_train.fit(learn,fit_type='encoder_fine_tune',
                            epochs=self.num_epochs,freeze_epochs=self.freeze_num_epochs,
-                           initial_weights=self.initial_weights
+                           initial_weights=self.initial_weights,
+                           pretrain=self.pretrain
                           )
             
         self.encoder = bt_model.encoder
@@ -168,7 +169,8 @@ class main_train:
 
         main_train.fit(learn,fit_type='fine_tune',
                        epochs=self.numfit,freeze_epochs=self.freeze_numfit,
-                       initial_weights=self.initial_weights
+                       initial_weights=self.initial_weights,
+                       pretrain=self.pretrain
                       ) #fine tuning (don't confuse this with fit policy!)
         scores,preds, acc = predict_model(self.xval,self.yval,model=model,aug_pipelines_test=self.aug_pipelines_test,numavg=10)
         #metrics dict will have f1 score, auc etc etc
