@@ -14,9 +14,9 @@ from .cancer_metrics import *
 def lf(self:BarlowTwins, pred,*yb): return lf_bt(pred,I=self.I,lmb=self.lmb)
 
 # %% ../nbs/cancer_maintrain.ipynb 15
-class LM(nn.Module,numout):
+class LM(nn.Module):
     "Basic linear model"
-    def __init__(self,encoder):
+    def __init__(self,encoder,numout):
         super().__init__()
         self.encoder=encoder
         self.head=nn.Linear(2048,numout)
