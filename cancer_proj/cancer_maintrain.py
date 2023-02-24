@@ -14,12 +14,12 @@ from .cancer_metrics import *
 def lf(self:BarlowTwins, pred,*yb): return lf_bt(pred,I=self.I,lmb=self.lmb)
 
 # %% ../nbs/cancer_maintrain.ipynb 15
-class LM(nn.Module):
+class LM(nn.Module,numout):
     "Basic linear model"
     def __init__(self,encoder):
         super().__init__()
         self.encoder=encoder
-        self.head=nn.Linear(2048,9)
+        self.head=nn.Linear(2048,numout)
         if torch.cuda.is_available():
             self.encoder.cuda()
             self.head.cuda()
@@ -161,10 +161,10 @@ class main_train:
         except AttributeError:
             _,self.encoder = create_model(which_model=self.initial_weights,ps=self.ps,device=self.device)
 
-        model = LM(self.encoder)
+        model = LM(self.encoder,numout=len(self.vocab))
         learn = Learner(self.dls_tune,model,splitter=my_splitter,cbs = [LinearBt(aug_pipelines=self.aug_pipelines_tune,n_in=self.n_in)],wd=0.0)
         
-        #debugging
+        #debugging 
         #learn = Learner(self.dls_tune,model,cbs = [LinearBt(aug_pipelines=self.aug_pipelines_tune,n_in=self.n_in)],wd=0.0)
 
         main_train.fit(learn,fit_type='fine_tune',

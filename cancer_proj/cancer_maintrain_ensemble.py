@@ -389,13 +389,13 @@ def lf_2_enc(pred,I,lmb,
     C_rr_4 = t1.T @ t2 / bs
 
     cdiff_rr = (1/4)*((C_rr_1.pow(2) + 1e-7).pow(0.5) + (C_rr_2.pow(2) + 1e-7).pow(0.5) + (C_rr_3.pow(2) + 1e-7).pow(0.5) + (C_rr_4.pow(2) + 1e-7).pow(0.5))  #keep the units the same
-
+    
     I_enc = torch.eye(2048).cuda()
-
+    
     #between model for inv
     C_inva1 = (z1norm.T @ z2norm_2) / bs
     cdiff_inva_1 = (C_inva1-I).pow(2)
-
+    
     C_inva2 = (z2norm.T @ z1norm_2) / bs
     cdiff_inva_2 = (C_inva2-I).pow(2)
 
@@ -529,7 +529,7 @@ class main_train_ensemble(main_train):
         #encoder = pickle.loads(pickle.dumps(self.encoder)) #We might want to pretrain once and fine tune several times (varying e.g. tune augs)
 
 
-        model = LM(self.encoder2)
+        model = LM(self.encoder2,numout=len(self.vocab))
         learn = Learner(self.dls_tune,model,splitter=my_splitter,cbs = [LinearBt(aug_pipelines=self.aug_pipelines_tune,n_in=self.n_in)],wd=0.0)
 
         #debugging
