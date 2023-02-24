@@ -455,7 +455,6 @@ def lf_2_proj(pred,I,lmb,
 
     cdiff_rr = (C_rr.pow(2) + 1e-7).pow(0.5) #keep the units the same
 
-
     #between model for inv
     C_inva1 = (z1norm.T @ z2norm_2) / bs
     cdiff_inva_1 = (C_inva1-I).pow(2)
@@ -465,10 +464,8 @@ def lf_2_proj(pred,I,lmb,
 
     cdiff_inva = 0.5*(cdiff_inva_1 + cdiff_inva_2)
 
-
     loss = (1-t)*(cdiff_2*I).sum() + t*(cdiff_inva*I).sum() + (1-s)*lmb*(cdiff_2*(1-I)).sum() + s*lmb*(cdiff_rr*(1-I)).sum()
 
-    
     torch.cuda.empty_cache()
     return loss
 

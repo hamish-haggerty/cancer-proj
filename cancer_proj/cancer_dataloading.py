@@ -4,7 +4,7 @@
 __all__ = ['colab_train_dir', 'colab_test_dir', 'local_train_dir', 'local_test_dir', 'BYOL_Augs', 'TUNE_Augs', 'Val_Augs',
            'get_file_lists', 'extract_text', 'label_func', 'get_difference', 'get_fnames_dict', 'get_data_dict',
            'get_fnames_dls_dict', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'tensor_to_np', 'seed_everything',
-           'get_resnet_encoder', 'create_model', 'create_aug_pipelines']
+           'test_fnames', 'get_resnet_encoder', 'create_model', 'create_aug_pipelines']
 
 # %% ../nbs/cancer_dataloading.ipynb 5
 import fastai
@@ -75,6 +75,7 @@ def get_fnames_dict(train_dir,test_dir,class_names):
 
         #files names
     fnames = get_image_files(train_dir)
+    fnames.sort()
 
     #Extract training set
     max_num =100 #maximum number of samples in each class
@@ -97,14 +98,18 @@ def get_fnames_dict(train_dir,test_dir,class_names):
             fnames_tune.append(i)
             count_dict2[st]+=1
             
-
+    fnames_tune.sort()
+            
 
     fnames_valid = get_difference(fnames_train,fnames_tune)
+    fnames_valid.sort()
 
     fnames_test = get_difference(fnames,fnames_train) + get_image_files(test_dir)
-
+    fnames_test.sort()
+    
     fnames_train = fnames_tune
-
+    
+    
     return {'fnames':fnames,'fnames_train':fnames_train,'fnames_tune':fnames_tune,
             'fnames_valid':fnames_valid,
             'fnames_test':fnames_test
@@ -216,7 +221,26 @@ def seed_everything(TORCH_SEED):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-# %% ../nbs/cancer_dataloading.ipynb 21
+# %% ../nbs/cancer_dataloading.ipynb 20
+#So we can check that e.g. loading on colab will give the same results
+
+def test_fnames(_fnames):
+    melanoma_names=[]
+    basalcellcarcinoma_names=[]
+    actinickeratosis_names=[]
+
+    for i in _fnames:
+
+        if 'melanoma' in i.as_posix(): melanoma_names.append(i.as_posix().split('/')[-1])
+
+        if 'basal cell carcinoma' in i.as_posix(): basalcellcarcinoma_names.append(i.as_posix().split('/')[-1])
+
+        if 'actinic keratosis' in i.as_posix(): actinickeratosis_names.append(i.as_posix().split('/')[-1])
+    
+    return melanoma_names,basalcellcarcinoma_names,actinickeratosis_names
+
+
+# %% ../nbs/cancer_dataloading.ipynb 26
 def get_resnet_encoder(model,n_in=3):
     model = create_body(model, n_in=n_in, pretrained=False, cut=len(list(model.children()))-1)
     model.add_module('flatten', torch.nn.Flatten())
@@ -246,7 +270,7 @@ def create_model(which_model,device,ps=8192,n_in=3):
 
     return model,encoder
 
-# %% ../nbs/cancer_dataloading.ipynb 23
+# %% ../nbs/cancer_dataloading.ipynb 28
 BYOL_Augs = dict(flip_p1=0.5,flip_p2=0.5,jitter_p1=0.8,jitter_p2=0.8,bw_p1=0.2,
                 bw_p2=0.2,blur_p1=1.0,blur_p2=0.1,sol_p1=0.0,sol_p2=0.2,noise_p1=0.0,
                 noise_p2=0.0,resize_scale=(0.7, 1.0),resize_ratio=(3/4, 4/3),rotate_deg=45.0,
