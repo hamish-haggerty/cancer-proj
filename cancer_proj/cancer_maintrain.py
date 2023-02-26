@@ -81,7 +81,7 @@ class main_train:
                  aug_pipelines_tune, #the aug pipeline for supervised learning
                  aug_pipelines_test, #test (or valid) time augmentations 
                  initial_weights, #Which initial weights to use
-                 pretrain, #Whether to fit BT
+                 pretrain, #Has the model been pretrained?
                  num_epochs, #number of BT fit epochs
                  numfit, #number of tune_fit epochs
                  freeze_num_epochs, #How many epochs to freeze body for when training BT
@@ -90,6 +90,8 @@ class main_train:
                  n_in=3, #color channels
                  indim=2048, #dimension output of encoder (2048 for resnet50)
                  outdim=9, #number of classes
+                 lr_max=None,#maximum learning rate used in `fit_one_cycle` (training encoder)
+                 lmb=None, #generally in {1/8192, 0.5*5e-3, 5e-3} at the moment
                  print_report=False, #F1 metrics etc
                  print_plot=False, #ROC curve
                  tune_model_path=None, #save models after fine tuning
@@ -100,29 +102,31 @@ class main_train:
 
  
     @staticmethod
-    def fit(learn,fit_type,epochs,freeze_epochs,initial_weights,pretrain):
+    def fit(learn,fit_type,epochs,freeze_epochs,initial_weights,pretrain,lr_max=None):
         """We can patch in a modification, e.g. if we want subtype of fine_tune:supervised_pretrain to be different
         to fine_tune:bt_pretrain"""
+        
+        #Ok, just use `fit` for everything: keep it simple. Only wrinkle is we freeze
+        #body when fine tuning IF model has been pretrained
 
 
         if fit_type == 'encoder_fine_tune': #i.e. barlow twins
-
-            #learn.encoder_fine_tune(epochs,freeze_epochs=freeze_epochs)
-            lr_max=0.0030199517495930195
-            print(f'lr_max={lr_max}')
-            learn.fit_one_cycle(epochs,lr_max= lr_max)
+            learn.fit_one_cycle(epochs,lr_max)
 
         elif fit_type == 'fine_tune':
 
-            if pretrain == False:
-                print('pretrain was False, and about to fit_one_cycle')
-                learn.fit_one_cycle(epochs,lr_max=0.00027542) 
+            if pretrain == False and initial_weights not in ['bt_pretrain','supervised_pretrain']:
 
-            elif pretrain == True:
-                print('pretrain was True, and about to linear_fine_tune')
-                learn.linear_fine_tune(epochs,freeze_epochs=freeze_epochs) #This gave very similar performance, when pretrain=False (see above / earlier commit)
+                learn.fit(epochs)
 
-
+            else:
+                learn.freeze()
+                print('froze body')
+                learn.fit(freeze_epochs)
+                learn.unfreeze()
+                print('unfroze body')
+                learn.fit(epochs)
+    
         else: raise Exception('Fit policy not of expected form')
         
 
@@ -140,11 +144,12 @@ class main_train:
 
         if self.pretrain: #train encoder according to fit policy
 
-            learn = Learner(self.dls_train,bt_model,splitter=my_splitter_bt,cbs=[BarlowTwins(self.aug_pipelines,n_in=self.n_in,lmb=1/self.ps,print_augs=False)])
+            learn = Learner(self.dls_train,bt_model,splitter=my_splitter_bt,cbs=[BarlowTwins(self.aug_pipelines,n_in=self.n_in,lmb=self.lmb,print_augs=False)])
             main_train.fit(learn,fit_type='encoder_fine_tune',
                            epochs=self.num_epochs,freeze_epochs=self.freeze_num_epochs,
                            initial_weights=self.initial_weights,
-                           pretrain=self.pretrain
+                           pretrain=self.pretrain,
+                           lr_max=self.lr_max
                           )
             
         self.encoder = bt_model.encoder
