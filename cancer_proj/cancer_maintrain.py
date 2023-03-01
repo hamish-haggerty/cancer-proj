@@ -111,6 +111,8 @@ class main_train:
 
 
         if fit_type == 'encoder_fine_tune': #i.e. barlow twins
+            
+            print(f'about to fit one cycle with lr_max: {lr_max}')
             learn.fit_one_cycle(epochs,lr_max)
 
         elif fit_type == 'fine_tune':
