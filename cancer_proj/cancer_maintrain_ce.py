@@ -10,11 +10,11 @@ from .cancer_dataloading import *
 from .cancer_metrics import *
 from .cancer_maintrain import *
 
-# %% ../nbs/cancer_maintrain_ce.ipynb 13
+# %% ../nbs/cancer_maintrain_ce.ipynb 14
 #| export
 
 
-# %% ../nbs/cancer_maintrain_ce.ipynb 15
+# %% ../nbs/cancer_maintrain_ce.ipynb 16
 class CeBarlowTwinsModel(Module):
     """An encoder followed by a projector
     """
@@ -27,7 +27,7 @@ class CeBarlowTwinsModel(Module):
         return tem,self.head(tem)
     
 
-# %% ../nbs/cancer_maintrain_ce.ipynb 16
+# %% ../nbs/cancer_maintrain_ce.ipynb 17
 class BarlowTwinsCe(Callback):
     order,run_valid = 9,True
     def __init__(self, aug_pipelines,n_in, lmb=5e-3,numout=10, print_augs=False):
@@ -42,7 +42,7 @@ class BarlowTwinsCe(Callback):
     def before_fit(self): 
         self.learn.loss_func = self.lf
         #nf = self.learn.model.encoder[-1].out_features
-        self.nf = 2048
+        self.nf = 8192
         self.I = torch.eye(self.nf).to(self.dls.device)
 
 
@@ -110,7 +110,7 @@ class BarlowTwinsCe(Callback):
         for i in range(n): images += [x1[i],x2[i]]
         return show_batch(x1[0], None, images, max_n=len(images), nrows=n)
 
-# %% ../nbs/cancer_maintrain_ce.ipynb 17
+# %% ../nbs/cancer_maintrain_ce.ipynb 18
 def lf_ce(pred,*yb,I,lmb,t,criterion=CrossEntropyLossFlat()):
     
 
@@ -142,11 +142,11 @@ def lf_ce(pred,*yb,I,lmb,t,criterion=CrossEntropyLossFlat()):
 
 
 
-# %% ../nbs/cancer_maintrain_ce.ipynb 18
+# %% ../nbs/cancer_maintrain_ce.ipynb 19
 @patch
 def lf(self:BarlowTwinsCe, pred,*yb): return lf_ce(pred,*yb,I=self.I,lmb=self.lmb,t=self.t)
 
-# %% ../nbs/cancer_maintrain_ce.ipynb 19
+# %% ../nbs/cancer_maintrain_ce.ipynb 20
 @patch
 def before_epoch(self:BarlowTwinsCe):
     

@@ -222,7 +222,7 @@ def seed_everything(TORCH_SEED):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-# %% ../nbs/cancer_dataloading.ipynb 20
+# %% ../nbs/cancer_dataloading.ipynb 22
 #So we can check that e.g. loading on colab will give the same results
 
 def test_fnames(_fnames):
@@ -241,13 +241,13 @@ def test_fnames(_fnames):
     return melanoma_names,basalcellcarcinoma_names,actinickeratosis_names
 
 
-# %% ../nbs/cancer_dataloading.ipynb 21
+# %% ../nbs/cancer_dataloading.ipynb 23
 melanoma_names_train=['ISIC_0000139.jpg','ISIC_0000141.jpg','ISIC_0000142.jpg','ISIC_0000143.jpg','ISIC_0000144.jpg','ISIC_0000145.jpg','ISIC_0000146.jpg','ISIC_0000147.jpg','ISIC_0000148.jpg','ISIC_0000149.jpg','ISIC_0000150.jpg','ISIC_0000151.jpg','ISIC_0000152.jpg','ISIC_0000153.jpg','ISIC_0000154.jpg','ISIC_0000155.jpg','ISIC_0000156.jpg','ISIC_0000157.jpg','ISIC_0000158.jpg','ISIC_0000159.jpg','ISIC_0000160.jpg','ISIC_0000161.jpg','ISIC_0000162.jpg','ISIC_0000163.jpg','ISIC_0000164.jpg','ISIC_0000165.jpg','ISIC_0000166.jpg','ISIC_0000167.jpg','ISIC_0000168.jpg','ISIC_0000169.jpg','ISIC_0000170.jpg','ISIC_0000171.jpg','ISIC_0000172.jpg','ISIC_0000173.jpg','ISIC_0000174.jpg','ISIC_0000175.jpg','ISIC_0000176.jpg','ISIC_0000278.jpg','ISIC_0000279.jpg','ISIC_0000280.jpg','ISIC_0000285.jpg','ISIC_0000288.jpg','ISIC_0000289.jpg','ISIC_0000291.jpg','ISIC_0000292.jpg','ISIC_0000293.jpg','ISIC_0000294.jpg','ISIC_0000295.jpg','ISIC_0000296.jpg','ISIC_0000297.jpg','ISIC_0000298.jpg','ISIC_0000299.jpg','ISIC_0000300.jpg','ISIC_0000301.jpg','ISIC_0000302.jpg','ISIC_0000303.jpg','ISIC_0000304.jpg','ISIC_0000305.jpg','ISIC_0000306.jpg','ISIC_0000307.jpg','ISIC_0000308.jpg','ISIC_0000309.jpg','ISIC_0000310.jpg','ISIC_0000311.jpg','ISIC_0000312.jpg','ISIC_0000313.jpg','ISIC_0000314.jpg','ISIC_0000390.jpg','ISIC_0000393.jpg','ISIC_0000394.jpg','ISIC_0000395.jpg','ISIC_0000398.jpg','ISIC_0000399.jpg','ISIC_0000400.jpg','ISIC_0000401.jpg','ISIC_0000402.jpg','ISIC_0000404.jpg','ISIC_0000405.jpg','ISIC_0000406.jpg','ISIC_0000410.jpg']
 
-# %% ../nbs/cancer_dataloading.ipynb 22
+# %% ../nbs/cancer_dataloading.ipynb 24
 actinickeratosis_names_valid=['ISIC_0030491.jpg','ISIC_0030586.jpg','ISIC_0030655.jpg','ISIC_0030730.jpg','ISIC_0030825.jpg','ISIC_0030826.jpg','ISIC_0030877.jpg','ISIC_0031040.jpg','ISIC_0031108.jpg','ISIC_0031228.jpg','ISIC_0031292.jpg','ISIC_0031335.jpg','ISIC_0031381.jpg','ISIC_0031430.jpg','ISIC_0031506.jpg','ISIC_0031609.jpg','ISIC_0031823.jpg','ISIC_0031922.jpg','ISIC_0031993.jpg','ISIC_0032135.jpg']
 
-# %% ../nbs/cancer_dataloading.ipynb 26
+# %% ../nbs/cancer_dataloading.ipynb 28
 def get_resnet_encoder(model,n_in=3):
     model = create_body(model, n_in=n_in, pretrained=False, cut=len(list(model.children()))-1)
     model.add_module('flatten', torch.nn.Flatten())
@@ -277,7 +277,7 @@ def create_model(which_model,device,ps=8192,n_in=3):
 
     return model,encoder
 
-# %% ../nbs/cancer_dataloading.ipynb 28
+# %% ../nbs/cancer_dataloading.ipynb 30
 BYOL_Augs = dict(flip_p1=0.5,flip_p2=0.5,jitter_p1=0.8,jitter_p2=0.8,bw_p1=0.2,
                 bw_p2=0.2,blur_p1=1.0,blur_p2=0.1,sol_p1=0.0,sol_p2=0.2,noise_p1=0.0,
                 noise_p2=0.0,resize_scale=(0.7, 1.0),resize_ratio=(3/4, 4/3),rotate_deg=45.0,

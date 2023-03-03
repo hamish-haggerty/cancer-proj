@@ -9,20 +9,26 @@ import torch
 
 # %% ../nbs/cancer_metrics.ipynb 6
 @torch.no_grad()
-def predict_model(xval,yval,model,aug_pipelines_test,numavg=3,criterion = CrossEntropyLossFlat()):
+def predict_model(xval,yval,model,aug_pipelines_test,numavg=3,criterion = CrossEntropyLossFlat(),deterministic=False):
     "Note that this assumes xval is entire validation set. If it doesn't fit in memory, can't use this guy"
     
     model.eval()
 
     N=xval.shape[0]
+    
+    if not deterministic:
 
-    probs=0
-    for _ in range(numavg):
+        probs=0
+        for _ in range(numavg):
 
-        probs += torch.softmax(model(aug_pipelines_test[0](xval)),dim=1) #test time augmentation. This also gets around issue of randomness in the dataloader in each session...
+            probs += torch.softmax(model(aug_pipelines_test[0](xval)),dim=1) #test time augmentation. This also gets around issue of randomness in the dataloader in each session...
 
-    probs *= 1/numavg
+        probs *= 1/numavg
+        
+    else:
+        probs = torch.softmax(model(xval),dim=1)
 
+    
     ypred = cast(torch.argmax(probs, dim=1),TensorCategory)
 
     correct = (ypred == yval)#.type(torch.FloatTensor)
