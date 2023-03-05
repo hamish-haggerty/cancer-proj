@@ -247,6 +247,8 @@ def predict_whole_model(dls_test,model,aug_pipelines_test,numavg=3,criterion = C
             probs,ypred,acc = predict_model(xval,yval,model,aug_pipelines_test,numavg,
                                             criterion,deterministic
                                            )
+            
+            y=yval
 
         else:
             
@@ -256,7 +258,8 @@ def predict_whole_model(dls_test,model,aug_pipelines_test,numavg=3,criterion = C
             
             probs = torch.cat((probs,_probs))
             ypred = torch.cat((ypred,_ypred))
-            
+            y = torch.cat((y,yval))
+
 
         Acc +=acc
         
@@ -264,5 +267,5 @@ def predict_whole_model(dls_test,model,aug_pipelines_test,numavg=3,criterion = C
     Acc *= 1/(i+1)
     
     
-    return probs,ypred,Acc
+    return y,probs,ypred,Acc
             
