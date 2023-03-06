@@ -237,7 +237,7 @@ def get_data_dict(fnames_dict,train_dir,test_dir, #basic stuff needed
                                         )
 
         dls_test  = ImageDataLoaders.from_path_func(new_test_dir, fnames_test, test_label_func,
-                                bs=1,
+                                bs=bs_test,
                                 item_tfms=item_tfms,
                                 valid_pct=0,
                                 num_workers=12*(device=='cuda')
@@ -379,13 +379,14 @@ def test_dls_data(train_dir,test_dir,device):
 
     test_eq(len(_dls_test.train),1485)
 
-# %% ../nbs/cancer_dataloading.ipynb 32
+# %% ../nbs/cancer_dataloading.ipynb 33
+@torch.no_grad()
 def get_resnet_encoder(model,n_in=3):
     model = create_body(model, n_in=n_in, pretrained=False, cut=len(list(model.children()))-1)
     model.add_module('flatten', torch.nn.Flatten())
     return model
 
-
+@torch.no_grad()
 def create_model(which_model,device,ps=8192,n_in=3):
 
     #pretrained=True if 'which_model' in ['bt_pretrain', 'supervised_pretrain'] else False
@@ -409,7 +410,7 @@ def create_model(which_model,device,ps=8192,n_in=3):
 
     return model,encoder
 
-# %% ../nbs/cancer_dataloading.ipynb 34
+# %% ../nbs/cancer_dataloading.ipynb 35
 BYOL_Augs = dict(flip_p1=0.5,flip_p2=0.5,jitter_p1=0.8,jitter_p2=0.8,bw_p1=0.2,
                 bw_p2=0.2,blur_p1=1.0,blur_p2=0.1,sol_p1=0.0,sol_p2=0.2,noise_p1=0.0,
                 noise_p2=0.0,resize_scale=(0.7, 1.0),resize_ratio=(3/4, 4/3),rotate_deg=45.0,
