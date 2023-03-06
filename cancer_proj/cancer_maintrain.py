@@ -184,6 +184,7 @@ class main_train:
         self.vocab = self.dls_valid.vocab
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+
     def fit(learn,fit_type,epochs,freeze_epochs,initial_weights,pretrain,lr_max=None):
 
                 #Ok, just use `fit` for everything: keep it simple. Only wrinkle is we freeze
@@ -211,7 +212,8 @@ class main_train:
                 learn.tune_model_path = tune_model_path
                 learn.unfreeze()
                 print('unfroze body')
-                learn.fit_one_cyle(epochs,lr_max)
+    
+                learn.fit_one_cycle(epochs,lr_max)
             
             #Third case: we pretrained the model on the dataset. In this case, we need to run the learning
             #rate finder for each set of model weights
@@ -282,7 +284,8 @@ class main_train:
         main_train.fit(learn,fit_type='fine_tune',
                        epochs=self.numfit,freeze_epochs=self.freeze_numfit,
                        initial_weights=self.initial_weights,
-                       pretrain=self.pretrain
+                       pretrain=self.pretrain,
+                       lr_max=self.lr_max,
                       ) #fine tuning (don't confuse this with fit policy!)
         scores,preds, acc = predict_model(self.xval,self.yval,model=model,aug_pipelines_test=self.aug_pipelines_test,numavg=10)
         #metrics dict will have f1 score, auc etc etc
