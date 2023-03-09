@@ -26,18 +26,16 @@ def lf(self:BarlowTwins, pred,*yb): return lf_bt(pred,I=self.I,lmb=self.lmb)
 # %% ../nbs/cancer_maintrain.ipynb 17
 class LM(nn.Module):
     "Basic linear model"
-    def __init__(self,encoder,numout):
+    def __init__(self,encoder,numout,numin=2048):
         super().__init__()
         self.encoder=encoder
-        self.head=nn.Linear(2048,numout)
+        self.head=nn.Linear(numin,numout)
         if torch.cuda.is_available():
             self.encoder.cuda()
             self.head.cuda()
 
     def forward(self,x):
         return self.head(self.encoder(x))
-
-#TODO: write nonlinear head here as well if needed. Just need batchnorm, relu another hidden layer
 
 # %% ../nbs/cancer_maintrain.ipynb 18
 def my_splitter(m):
@@ -231,7 +229,7 @@ class main_train:
                 print(f'lr_max found is {lrs.valley}')
                 learn.tune_model_path = tune_model_path
             
-                learn.fit_one_cyle(epochs,lrs.valley)
+                learn.fit_one_cycle(epochs,lrs.valley)
                  
 
         else: raise Exception('Fit policy not of expected form')

@@ -240,7 +240,8 @@ def get_data_dict(fnames_dict,train_dir,test_dir, #basic stuff needed
                                 bs=bs_test,
                                 item_tfms=item_tfms,
                                 valid_pct=0,
-                                num_workers=12*(device=='cuda')
+                                num_workers=12*(device=='cuda'),
+                                shuffle=False,
                                 )
         
         xval,yval = dls_valid.one_batch()
