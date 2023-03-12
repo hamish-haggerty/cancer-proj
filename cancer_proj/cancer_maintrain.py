@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['lr_max_rand', 'lr_max_sup', 'lr_max_bt', 'DotDict', 'LM', 'my_splitter', 'my_splitter_bt', 'LinearBt', 'main_train',
-           'predict_model', 'predict_whole_model']
+           'predict_whole_model']
 
 # %% ../nbs/cancer_maintrain.ipynb 5
 from fastai.vision.all import *
@@ -123,10 +123,12 @@ class LinearBt(Callback):
         
         if true_epoch%self.tune_save_after == 0 and self.learn.tune_model_path!=None:
             #self.learn.tune_path = self.learn.tune_path +f'_epochs={self.n_epoch//50}'
-            path = self.learn.tune_model_path + f'_epochs={true_epoch}'
+            #path = self.learn.tune_model_path + f'_epochs={true_epoch}'
+            
+            path = self.learn.tune_model_path
             print(f'We are saving after true epoch {true_epoch} at path {path}')
             torch.save(self.learn.model.state_dict(), path)
-            self.learn.tune_model_path_dict[true_epoch]=path
+            #self.learn.tune_model_path_dict[true_epoch]=path
 
 
     def lf(self, pred, *yb):        
@@ -314,73 +316,43 @@ lr_max_sup = 0.0002290867705596611
 lr_max_bt = 0.0008317637839354575
 
 
-# %% ../nbs/cancer_maintrain.ipynb 37
+# %% ../nbs/cancer_maintrain.ipynb 39
 @torch.no_grad()
-def predict_model(xval,yval,model,aug_pipelines_test,numavg=3,criterion = CrossEntropyLossFlat(),deterministic=False):
-    "Note that this assumes xval is entire validation set. If it doesn't fit in memory, can't use this guy"
-    
+def predict_whole_model(dls_test, model, aug_pipelines_test, numavg=3, criterion=CrossEntropyLossFlat(), deterministic=False):
+    """
+    Predicts the labels and probabilities for the entire test set using the specified model and data augmentation
+    pipelines. Returns a dictionary containing the labels, probabilities, predicted labels, and accuracy.
+
+    Args:
+        dls_test: The test dataloader.
+        model: The trained model.
+        aug_pipelines_test: The test data augmentation pipelines.
+        numavg: The number of times to perform test-time augmentation.
+        criterion: The loss function to use for computing the accuracy.
+        deterministic: Whether to use deterministic computation.
+
+    Returns:
+        A dictionary containing the labels, probabilities, predicted labels, and accuracy.
+    """
     model.eval()
+    total_len = len(dls_test.dataset)
+    y = torch.zeros(total_len, dtype=torch.long)
+    probs = torch.zeros(total_len, model.head.out_features)
+    ypred = torch.zeros(total_len, dtype=torch.long)
 
-    N=xval.shape[0]
-    
-    if not deterministic:
+    start_idx = 0
+    for xval, yval in dls_test.train:
+        end_idx = start_idx + len(xval)
+        _probs, _ypred, acc = predict_model(xval, yval, model, aug_pipelines_test, numavg, criterion, deterministic)
+        y[start_idx:end_idx] = yval
+        probs[start_idx:end_idx] = _probs
+        ypred[start_idx:end_idx] = _ypred
+        start_idx = end_idx
 
-        probs=0
-        for _ in range(numavg):
+    # Calculate the overall accuracy
+    acc = (ypred == y).float().mean().item()
 
-            probs += torch.softmax(model(aug_pipelines_test[0](xval)),dim=1) #test time augmentation. This also gets around issue of randomness in the dataloader in each session...
+    # Return the predictions and labels in a dictionary
+    #return {'y': y, 'probs': probs, 'ypred': ypred, 'acc': acc}
+    return y,probs,ypred,acc
 
-        probs *= 1/numavg
-        
-    else:
-        probs = torch.softmax(model(xval),dim=1)
-
-    
-    ypred = cast(torch.argmax(probs, dim=1),TensorCategory)
-
-    correct = (ypred == yval)#.type(torch.FloatTensor)
-
-    #correct = (torch.argmax(ypred,dim=1) == yval).type(torch.FloatTensor)
-    num_correct = correct.sum()
-    accuracy = num_correct/N
-
-    #val_loss = criterion(scores,yval)
-    
-    return probs,ypred,accuracy.item()#,val_loss.item()
-
-# %% ../nbs/cancer_maintrain.ipynb 38
-@torch.no_grad()
-def predict_whole_model(dls_test,model,aug_pipelines_test,numavg=3,criterion = CrossEntropyLossFlat(),deterministic=False):
-    "Note that this assumes xval is entire validation set. If it doesn't fit in memory, can't use this guy"
-    
-    model.eval()
-    Acc=0
-    s=0
-    for i,(xval,yval) in enumerate(dls_test.train):
-        
-        if i == 0: #initialisation
-            probs,ypred,acc = predict_model(xval,yval,model,aug_pipelines_test,numavg,
-                                            criterion,deterministic
-                                           )
-            
-            y=yval
-
-        else:
-            
-            _probs,_ypred,acc = predict_model(xval,yval,model,aug_pipelines_test,
-                                              numavg,criterion,deterministic
-                                             )
-            
-            probs = torch.cat((probs,_probs))
-            ypred = torch.cat((ypred,_ypred))
-            y = torch.cat((y,yval))
-
-
-        Acc +=acc
-        
-                
-    Acc *= 1/(i+1)
-    
-    
-    return y,probs,ypred,Acc
-            
