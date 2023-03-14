@@ -183,7 +183,7 @@ def Mean_Results(results):
 
 def main_tune(initial_weights,dls,epochs=40,device='cuda',
               encoder=None,tune_model_path=None,dict_path=None,description=None,
-              aug_pipelines_tune=aug_pipelines_tune,
+              aug_pipelines_tune=None,
               results=None,runs=range(1)
              ):
 

@@ -51,7 +51,7 @@ def get_difference(x1, x2):
 #test_eq(len(_labels),len(_fnames))
 
 # %% ../nbs/cancer_dataloading.ipynb 6
-def get_fnames(_fnames):
+def get_fnames(_fnames,_labels):
 
     fnames_train=[]
     labels_train=[]
@@ -79,6 +79,7 @@ def get_fnames(_fnames):
     return {'fnames_train':fnames_train,'fnames_valid':fnames_valid,'fnames_test':fnames_test,
             'labels_train':labels_train,'labels_valid':labels_valid,'labels_test':labels_test
            }
+
 
 
 # %% ../nbs/cancer_dataloading.ipynb 9
