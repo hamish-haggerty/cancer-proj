@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['BYOL_Augs', 'TUNE_Augs', 'Val_Augs', 'process_path', 'extract_id', 'get_class_from_id', 'get_label_func_dict',
-           'label_func', 'get_fnames', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'DotDict', 'seed_everything',
+           'get_difference', 'get_fnames', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'DotDict', 'seed_everything',
            'get_resnet_encoder', 'create_model', 'create_aug_pipelines']
 
 # %% ../nbs/cancer_dataloading.ipynb 4
@@ -44,9 +44,8 @@ def get_label_func_dict(_fnames):
 #label_func_dict = get_label_func_dict(_fnames) #can just load this in future to save time
 #label_func_dict = data_dict['label_func_dict']
 
-def label_func(name):
-
-    return label_func_dict[name]
+def get_difference(x1, x2):
+    return list(set(x1) - set(x2))
 
 #_labels = [label_func(x) for x in _fnames] 
 #test_eq(len(_labels),len(_fnames))
@@ -76,7 +75,10 @@ def get_fnames(_fnames):
     fnames_test.sort()
     labels_test = [label_func(path) for path in fnames_test]
 
-    return fnames_train,fnames_valid,fnames_test
+   
+    return {'fnames_train':fnames_train,'fnames_valid':fnames_valid,'fnames_test':fnames_test,
+            'labels_train':labels_train,'labels_valid':labels_valid,'labels_test':labels_test
+           }
 
 
 # %% ../nbs/cancer_dataloading.ipynb 9

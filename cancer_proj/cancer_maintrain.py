@@ -105,7 +105,7 @@ class LinearBt(Callback):
         return show_batch(x1[0], None, images, max_n=len(images), nrows=n)
 
 # %% ../nbs/cancer_maintrain.ipynb 19
-def fine_tune(initial_weights,dls_tune,device,encoder=None,epochs=40,tune_model_path=None):
+def fine_tune(initial_weights,dls_tune,device,aug_pipelines_tune,encoder=None,epochs=40,tune_model_path=None):
     
     
     if encoder is None: #Generally speaking, this will be None, unless we pretrained an encoder somewhere else and want to pass it in
@@ -181,8 +181,9 @@ def Mean_Results(results):
 
 #fine tune, return the model and path
 
-def main_tune(initial_weights,epochs=40,device='cuda',
+def main_tune(initial_weights,dls,epochs=40,device='cuda',
               encoder=None,tune_model_path=None,dict_path=None,description=None,
+              aug_pipelines_tune=aug_pipelines_tune,
               results=None,runs=range(1)
              ):
 
@@ -205,9 +206,9 @@ def main_tune(initial_weights,epochs=40,device='cuda',
     
     for i in runs:
 
-        _tune_model_path = tune_model_path + f'_run{i}'
+        _tune_model_path = None if tune_model_path is None else tune_model_path + f'_run{i}'
 
-        fine_tuned = fine_tune(initial_weights,dls_tune,device,encoder=encoder,epochs=epochs,tune_model_path=_tune_model_path)
+        fine_tuned = fine_tune(initial_weights,dls,device,aug_pipelines_tune,encoder=encoder,epochs=epochs,tune_model_path=_tune_model_path)
 
         #get the metrics
         metrics = get_dls_metrics(dls_test,fine_tuned,int_to_classes)
