@@ -9,6 +9,14 @@ from fastai.vision.all import *
 import torch
 from statistics import mean
 import numpy as np
+import scikitplot 
+
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import average_precision_score,precision_recall_curve,roc_curve,auc,classification_report,confusion_matrix
+from scipy import interp
+
+import seaborn as sns
+import pandas as pd
 
 # %% ../nbs/cancer_metrics.ipynb 5
 @torch.no_grad()
@@ -63,8 +71,6 @@ def predict_ensemble(yval,scores1,scores2):
     return ypred,accuracy.item()
 
 # %% ../nbs/cancer_metrics.ipynb 7
-from sklearn.metrics import classification_report
-
 def classification_report_wrapper(ypred, y, int_to_classes, print_report=True):
     # Convert ypred and y to numpy arrays
     ypred = ypred.cpu().numpy()
@@ -169,10 +175,6 @@ def format_classification_report(data_dict):
 
 
 # %% ../nbs/cancer_metrics.ipynb 16
-import seaborn as sns
-import pandas as pd
-from sklearn.metrics import confusion_matrix
-
 def print_confusion_matrix(ypred, y, vocab):
     # Convert ypred and y to numpy arrays
     ypred = ypred.cpu().numpy()
@@ -192,10 +194,6 @@ def print_confusion_matrix(ypred, y, vocab):
 
 
 # %% ../nbs/cancer_metrics.ipynb 18
-from sklearn.preprocessing import label_binarize
-from sklearn.metrics import average_precision_score,precision_recall_curve,roc_curve,auc
-from scipy import interp
-
 def _plot_precision_recall(y_true, y_probas,
                           title='Precision-Recall Curve',
                           plot_micro=True,
@@ -337,8 +335,6 @@ def _plot_roc(y_true, y_probas, title='ROC Curves',
     return ax
 
 # %% ../nbs/cancer_metrics.ipynb 20
-import scikitplot
-
 def plot_roc(ytest,probs,int_to_classes,print_plot=True):
     
     #We want the AUC dict; and we want a plot as well.
