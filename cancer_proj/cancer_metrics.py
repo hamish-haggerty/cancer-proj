@@ -7,6 +7,8 @@ __all__ = ['predict_model', 'predict_ensemble', 'classification_report_wrapper',
 # %% ../nbs/cancer_metrics.ipynb 4
 from fastai.vision.all import *
 import torch
+from statistics import mean
+import numpy as np
 
 # %% ../nbs/cancer_metrics.ipynb 5
 @torch.no_grad()
