@@ -12,7 +12,7 @@ import numpy as np
 import scikitplot 
 
 from sklearn.preprocessing import label_binarize
-from sklearn.metrics import average_precision_score,precision_recall_curve,roc_curve,auc,classification_report,confusion_matrix
+from sklearn.metrics import roc_auc_score,average_precision_score,precision_recall_curve,roc_curve,auc,classification_report,confusion_matrix
 from scipy import interp
 
 import seaborn as sns
@@ -361,8 +361,6 @@ def plot_pr(ytest,probs,int_to_classes,print_plot=True):
         plt.show()
 
 # %% ../nbs/cancer_metrics.ipynb 21
-from sklearn.metrics import roc_auc_score,average_precision_score
-
 def Auc_Dict(ytest,probs,int_to_classes=None):
     "Mostly used to verify results of plot (debug)"
 
