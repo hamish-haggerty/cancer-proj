@@ -2,14 +2,14 @@
 
 # %% auto 0
 __all__ = ['predict_model', 'predict_ensemble', 'classification_report_wrapper', 'Mean_Report', 'format_classification_report',
-           'print_confusion_matrix', 'Auc_Dict', 'Pr_Dict']
+           'print_confusion_matrix', 'plot_roc', 'plot_pr', 'Auc_Dict', 'Pr_Dict']
 
 # %% ../nbs/cancer_metrics.ipynb 4
 from fastai.vision.all import *
 import torch
 from statistics import mean
 import numpy as np
-#import scikitplot 
+import scikitplot 
 
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score,average_precision_score,precision_recall_curve,roc_curve,auc,classification_report,confusion_matrix
@@ -192,6 +192,173 @@ def print_confusion_matrix(ypred, y, vocab):
     # Use seaborn to create a heatmap of the confusion matrix with blue and white colors
     sns.heatmap(df_cm, annot=True, cmap="Blues")
 
+
+# %% ../nbs/cancer_metrics.ipynb 18
+def _plot_precision_recall(y_true, y_probas,
+                          title='Precision-Recall Curve',
+                          plot_micro=True,
+                          classes_to_plot=None, ax=None,
+                          figsize=None, cmap='nipy_spectral',
+                          title_fontsize="large",
+                          text_fontsize="small"):
+    """Generates the Precision Recall Curve from labels and probabilities. This is moneky patched from: 
+    https://github.com/reiinakano/scikit-plot/blob/26007fbf9f05e915bd0f6acb86850b01b00944cf/scikitplot/metrics.py
+
+    """
+    y_true = np.array(y_true)
+    y_probas = np.array(y_probas)
+
+    classes = np.unique(y_true)
+    probas = y_probas
+
+    if classes_to_plot is None:
+        classes_to_plot = classes
+
+    binarized_y_true = label_binarize(y_true, classes=classes)
+    if len(classes) == 2:
+        binarized_y_true = np.hstack(
+            (1 - binarized_y_true, binarized_y_true))
+
+    if ax is None:
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+
+    ax.set_title(title, fontsize=title_fontsize)
+
+    indices_to_plot = np.in1d(classes, classes_to_plot)
+    for i, to_plot in enumerate(indices_to_plot):
+        if to_plot:
+            average_precision = average_precision_score(
+                binarized_y_true[:, i],
+                probas[:, i])
+            precision, recall, _ = precision_recall_curve(
+                y_true, probas[:, i], pos_label=classes[i])
+            color = plt.cm.get_cmap(cmap)(float(i) / len(classes))
+            ax.plot(recall, precision, lw=2,
+                    label='{0} '
+                          '(area = {1:0.3f})'.format(classes[i],
+                                                     average_precision),
+                    color=color)
+
+    if plot_micro:
+        precision, recall, _ = precision_recall_curve(
+            binarized_y_true.ravel(), probas.ravel())
+        average_precision = average_precision_score(binarized_y_true,
+                                                    probas,
+                                                    average='micro')
+        ax.plot(recall, precision,
+                label='micro-avg '
+                      '(area = {0:0.3f})'.format(average_precision),
+                color='navy', linestyle=':', linewidth=4)
+
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel('Recall')
+    ax.set_ylabel('Precision')
+    ax.tick_params(labelsize=text_fontsize)
+    ax.legend(loc='best', fontsize=text_fontsize)
+    return ax
+
+def _plot_roc(y_true, y_probas, title='ROC Curves',
+                   plot_micro=True, plot_macro=True, classes_to_plot=None,
+                   ax=None, figsize=None, cmap='nipy_spectral',
+                   title_fontsize="large", text_fontsize="medium"):
+    """Generates the ROC curves from labels and predicted scores/probabilities. Monkey patched like above function.
+
+
+    """
+    y_true = np.array(y_true)
+    y_probas = np.array(y_probas)
+
+    classes = np.unique(y_true)
+    probas = y_probas
+
+    if classes_to_plot is None:
+        classes_to_plot = classes
+
+    if ax is None:
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+
+    ax.set_title(title, fontsize=title_fontsize)
+
+    fpr_dict = dict()
+    tpr_dict = dict()
+
+    indices_to_plot = np.in1d(classes, classes_to_plot)
+    for i, to_plot in enumerate(indices_to_plot):
+        fpr_dict[i], tpr_dict[i], _ = roc_curve(y_true, probas[:, i],
+                                                pos_label=classes[i])
+        if to_plot:
+            roc_auc = auc(fpr_dict[i], tpr_dict[i])
+            color = plt.cm.get_cmap(cmap)(float(i) / len(classes))
+            ax.plot(fpr_dict[i], tpr_dict[i], lw=2, color=color,
+                    label='{0} (area = {1:0.2f})'
+                          ''.format(classes[i], roc_auc))
+
+    if plot_micro:
+        binarized_y_true = label_binarize(y_true, classes=classes)
+        if len(classes) == 2:
+            binarized_y_true = np.hstack(
+                (1 - binarized_y_true, binarized_y_true))
+        fpr, tpr, _ = roc_curve(binarized_y_true.ravel(), probas.ravel())
+        roc_auc = auc(fpr, tpr)
+        ax.plot(fpr, tpr,
+                label='micro-avg'
+                      '(area = {0:0.2f})'.format(roc_auc),
+                color='deeppink', linestyle=':', linewidth=4)
+
+    if plot_macro:
+        # Compute macro-average ROC curve and ROC area
+        # First aggregate all false positive rates
+        all_fpr = np.unique(np.concatenate([fpr_dict[x] for x in range(len(classes))]))
+
+        # Then interpolate all ROC curves at this points
+        mean_tpr = np.zeros_like(all_fpr)
+        for i in range(len(classes)):
+            mean_tpr += interp(all_fpr, fpr_dict[i], tpr_dict[i])
+
+        # Finally average it and compute AUC
+        mean_tpr /= len(classes)
+        roc_auc = auc(all_fpr, mean_tpr)
+
+        ax.plot(all_fpr, mean_tpr,
+                label='macro-avg'
+                      '(area = {0:0.2f})'.format(roc_auc),
+                color='navy', linestyle=':', linewidth=4)
+
+    ax.plot([0, 1], [0, 1], 'k--', lw=2)
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel('False Positive Rate', fontsize=text_fontsize)
+    ax.set_ylabel('True Positive Rate', fontsize=text_fontsize)
+    ax.tick_params(labelsize=text_fontsize)
+    ax.legend(loc='lower right', fontsize=text_fontsize)
+    return ax
+
+# %% ../nbs/cancer_metrics.ipynb 20
+def plot_roc(ytest,probs,int_to_classes,print_plot=True):
+    
+    #We want the AUC dict; and we want a plot as well.
+    
+    ytest = ytest.cpu().numpy()
+    _ytest = [int_to_classes[i] for i in ytest] #e.g. ['AK','MEL',...]
+    
+    if print_plot:
+        #scikitplot.metrics.plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
+        _plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
+
+def plot_pr(ytest,probs,int_to_classes,print_plot=True):
+    
+    #We want the AUC dict; and we want a plot as well.
+    
+    ytest = ytest.cpu().numpy()
+    _ytest = [int_to_classes[i] for i in ytest] #e.g. ['AK','MEL',...]
+    
+    if print_plot:
+        #scikitplot.metrics.plot_precision_recall(_ytest, probs)#,plot_micro=True,plot_macro=False)
+        _plot_precision_recall(_ytest, probs,plot_micro=True)
+
+        plt.legend(loc='best', fontsize='small')
+        plt.show()
 
 # %% ../nbs/cancer_metrics.ipynb 21
 def Auc_Dict(ytest,probs,int_to_classes=None):
