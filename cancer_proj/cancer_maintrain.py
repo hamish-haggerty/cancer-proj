@@ -136,18 +136,25 @@ def fine_tune(initial_weights,dls_tune,device,aug_pipelines_tune,encoder=None,ep
     return model
 
 
-def get_dls_metrics(dls,model,int_to_classes): #note that we can't call dls.vocab as it might be smaller on the test set
+def get_dls_metrics(dls,model,aug_pipelines_test,int_to_classes): #note that we can't call dls.vocab as it might be smaller on the test set
     "get metrics from model and dataloader"
 
     ytest,probs,preds,Acc = predict_whole_model(dls,model,aug_pipelines_test,numavg=3)
     metrics = classification_report_wrapper(preds, ytest,int_to_classes, print_report=True)
     
-    auc_dict = plot_roc(ytest,preds,int_to_classes,print_plot=True)
+    plot_roc(ytest,probs,int_to_classes)
+    auc_dict = Auc_Dict(ytest,probs,int_to_classes)
+    print(f'auc_dict is: {auc_dict}')
+    plot_pr(ytest,probs,int_to_classes)
+    pr_dict = Pr_Dict(ytest,probs,int_to_classes)
+    print(f'auc_dict is: {pr_dict}')
+
     metrics['ytest']=ytest
     metrics['probs']=probs
     metrics['preds']=preds
     metrics['acc']=Acc
     metrics['auc_dict']=auc_dict
+    metrics['pr_dict']=pr_dict
 
     return metrics
 
@@ -181,9 +188,9 @@ def Mean_Results(results):
 
 #fine tune, return the model and path
 
-def main_tune(initial_weights,dls,epochs=40,device='cuda',
+def main_tune(initial_weights,dls_tune,dls_test,aug_pipelines_tune,aug_pipelines_test,
+              epochs=40,device='cuda',
               encoder=None,tune_model_path=None,dict_path=None,description=None,
-              aug_pipelines_tune=None,
               results=None,runs=range(1)
              ):
 
@@ -208,12 +215,11 @@ def main_tune(initial_weights,dls,epochs=40,device='cuda',
 
         _tune_model_path = None if tune_model_path is None else tune_model_path + f'_run{i}'
 
-        fine_tuned = fine_tune(initial_weights,dls,device,aug_pipelines_tune,encoder=encoder,epochs=epochs,tune_model_path=_tune_model_path)
+        fine_tuned = fine_tune(initial_weights,dls_tune,device,aug_pipelines_tune,encoder=encoder,epochs=epochs,tune_model_path=_tune_model_path)
 
         #get the metrics
-        metrics = get_dls_metrics(dls_test,fine_tuned,int_to_classes)
+        metrics = get_dls_metrics(dls_test,fine_tuned,aug_pipelines_test,int_to_classes)
         print(metrics['acc'])
-
         #put the path in in the metrics and a short description
         metrics['tune_model_path'],metrics['description'] = tune_model_path,description
 

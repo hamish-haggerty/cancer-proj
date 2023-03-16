@@ -255,7 +255,7 @@ def _plot_precision_recall(y_true, y_probas,
     ax.set_xlabel('Recall')
     ax.set_ylabel('Precision')
     ax.tick_params(labelsize=text_fontsize)
-    ax.legend(loc='best', fontsize=text_fontsize)
+    ax.legend(loc='lower left', fontsize=text_fontsize)
     return ax
 
 def _plot_roc(y_true, y_probas, title='ROC Curves',
@@ -334,8 +334,33 @@ def _plot_roc(y_true, y_probas, title='ROC Curves',
     ax.legend(loc='lower right', fontsize=text_fontsize)
     return ax
 
+#| export
+
+def plot_roc(ytest,probs,int_to_classes):
+    
+    #We want the AUC dict; and we want a plot as well.
+    
+    ytest = ytest.cpu().numpy()
+    _ytest = [int_to_classes[i] for i in ytest] #e.g. ['AK','MEL',...]
+
+    #scikitplot.metrics.plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
+    _plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
+
+def plot_pr(ytest,probs,int_to_classes):
+    
+    #We want the AUC dict; and we want a plot as well.
+    
+    ytest = ytest.cpu().numpy()
+    _ytest = [int_to_classes[i] for i in ytest] #e.g. ['AK','MEL',...]
+
+    #scikitplot.metrics.plot_precision_recall(_ytest, probs)#,plot_micro=True,plot_macro=False)
+    _plot_precision_recall(_ytest, probs,plot_micro=True)
+
+    plt.legend(loc='best', fontsize='small')
+    plt.show()
+
 # %% ../nbs/cancer_metrics.ipynb 20
-def plot_roc(ytest,probs,int_to_classes,print_plot=True):
+def plot_roc(ytest,probs,int_to_classes):
     
     #We want the AUC dict; and we want a plot as well.
     
@@ -346,7 +371,7 @@ def plot_roc(ytest,probs,int_to_classes,print_plot=True):
         #scikitplot.metrics.plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
         _plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
 
-def plot_pr(ytest,probs,int_to_classes,print_plot=True):
+def plot_pr(ytest,probs,int_to_classes):
     
     #We want the AUC dict; and we want a plot as well.
     
@@ -395,10 +420,11 @@ def Pr_Dict(ytest,probs,int_to_classes=None):
         y_true = np.array([1 if y == cls else 0 for y in ytest]) # one-vs-all labels
         y_score = probs[:, i] # get probability for current class
         pr = average_precision_score(y_true, y_score)#, multi_class='ovr')
-        pr_dict[cls] = auc
+        pr_dict[cls] = pr
 
     if int_to_classes!=None:
-        pr_dict = {int_to_classes[i]:pr_dict[i] for i in auc_dict}
+        pr_dict = {int_to_classes[i]:pr_dict[i] for i in pr_dict}
     
     return pr_dict
+
 

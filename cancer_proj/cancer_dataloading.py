@@ -2,8 +2,8 @@
 
 # %% auto 0
 __all__ = ['BYOL_Augs', 'TUNE_Augs', 'Val_Augs', 'process_path', 'extract_id', 'get_class_from_id', 'get_label_func_dict',
-           'get_difference', 'get_fnames', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'DotDict', 'seed_everything',
-           'get_resnet_encoder', 'create_model', 'create_aug_pipelines']
+           'Label_Func', 'get_difference', 'get_fnames', 'save_dict_to_gdrive', 'load_dict_from_gdrive', 'DotDict',
+           'seed_everything', 'get_resnet_encoder', 'create_model', 'create_aug_pipelines']
 
 # %% ../nbs/cancer_dataloading.ipynb 4
 import fastai
@@ -41,6 +41,9 @@ def get_label_func_dict(_fnames):
 
     return label_func_dict
 
+def Label_Func(name,label_func_dict):
+    return label_func_dict[name]
+
 #label_func_dict = get_label_func_dict(_fnames) #can just load this in future to save time
 #label_func_dict = data_dict['label_func_dict']
 
@@ -51,7 +54,7 @@ def get_difference(x1, x2):
 #test_eq(len(_labels),len(_fnames))
 
 # %% ../nbs/cancer_dataloading.ipynb 6
-def get_fnames(_fnames,_labels):
+def get_fnames(_fnames,_labels,label_func):
 
     fnames_train=[]
     labels_train=[]
@@ -79,8 +82,6 @@ def get_fnames(_fnames,_labels):
     return {'fnames_train':fnames_train,'fnames_valid':fnames_valid,'fnames_test':fnames_test,
             'labels_train':labels_train,'labels_valid':labels_valid,'labels_test':labels_test
            }
-
-
 
 # %% ../nbs/cancer_dataloading.ipynb 9
 import pickle
