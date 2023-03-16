@@ -188,7 +188,7 @@ def Mean_Results(results):
 
 #fine tune, return the model and path
 
-def main_tune(initial_weights,dls_tune,dls_test,aug_pipelines_tune,aug_pipelines_test,
+def main_tune(initial_weights,dls_tune,dls_test,aug_pipelines_tune,aug_pipelines_test,int_to_classes,
               epochs=40,device='cuda',
               encoder=None,tune_model_path=None,dict_path=None,description=None,
               results=None,runs=range(1)

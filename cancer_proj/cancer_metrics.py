@@ -367,9 +367,8 @@ def plot_roc(ytest,probs,int_to_classes):
     ytest = ytest.cpu().numpy()
     _ytest = [int_to_classes[i] for i in ytest] #e.g. ['AK','MEL',...]
     
-    if print_plot:
-        #scikitplot.metrics.plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
-        _plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
+    #scikitplot.metrics.plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
+    _plot_roc(_ytest, probs,plot_micro=True,plot_macro=False)
 
 def plot_pr(ytest,probs,int_to_classes):
     
@@ -378,12 +377,11 @@ def plot_pr(ytest,probs,int_to_classes):
     ytest = ytest.cpu().numpy()
     _ytest = [int_to_classes[i] for i in ytest] #e.g. ['AK','MEL',...]
     
-    if print_plot:
-        #scikitplot.metrics.plot_precision_recall(_ytest, probs)#,plot_micro=True,plot_macro=False)
-        _plot_precision_recall(_ytest, probs,plot_micro=True)
+    #scikitplot.metrics.plot_precision_recall(_ytest, probs)#,plot_micro=True,plot_macro=False)
+    _plot_precision_recall(_ytest, probs,plot_micro=True)
 
-        plt.legend(loc='best', fontsize='small')
-        plt.show()
+    plt.legend(loc='best', fontsize='small')
+    plt.show()
 
 # %% ../nbs/cancer_metrics.ipynb 21
 def Auc_Dict(ytest,probs,int_to_classes=None):
