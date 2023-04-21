@@ -19,10 +19,11 @@ pip install git+https://github.com/hamish-haggerty/cancer-proj.git
 
 ## How to use
 
-Full documentation and code examples are upcoming. For now easiest way
-to use code is to open `cancer_results` from experiments folder in
-Colab. You will need to download the dataset and save it to your google
-drive to use that notebook code as is.
+Full documentation and code examples are upcoming. For now, easiest way
+to use code is to open `experiments/cancer_results.ipynb` in Colab. You
+will need to download the dataset and save it to your google drive to
+use that notebook code as is (see start of notebook for details on
+dataset).
 
 Transfer learning can be done by a single call to
 [`main_tune`](https://hamish-haggerty.github.io/cancer-proj/cancer_maintrain.html#main_tune)
