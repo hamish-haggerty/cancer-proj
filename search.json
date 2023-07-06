@@ -1,0 +1,65 @@
+[
+  {
+    "objectID": "cancer_dataloading.html",
+    "href": "cancer_dataloading.html",
+    "title": "cancer_dataloading",
+    "section": "",
+    "text": "source\n\nget_difference\n\n get_difference (x1, x2)\n\n\nsource\n\n\nLabel_Func\n\n Label_Func (name, label_func_dict)\n\n\nsource\n\n\nget_label_func_dict\n\n get_label_func_dict (_fnames)\n\n\nsource\n\n\nget_class_from_id\n\n get_class_from_id (string)\n\nGiven the identifier e.g. ISIC_0000000.jpg return the class label\n\nsource\n\n\nextract_id\n\n extract_id (string)\n\n\nsource\n\n\nprocess_path\n\n process_path (name)\n\n\nsource\n\n\nget_fnames\n\n get_fnames (_fnames, _labels, label_func)\n\nHow to load on colab:\n\n# data_dict = load_dict_from_gdrive(directory=save_directory,filename='data_dict') \n# _fnames = data_dict['_fnames']\n# #_fnames = get_image_files(directory) \n# #_fnames = [name for name in _fnames if 'downsampled' not in name.as_posix()] #otherwise load like this\n# test_eq(len(_fnames),len(data))\n\n#label_func_dict = get_label_func_dict(_fnames)\n#fnames_train,fnames_valid,fnames_test = _fnames_dict['fnames_train'],_fnames_dict['fnames_valid'],_fnames_dict['fnames_test']\n\n\nsource\n\n\nload_dict_from_gdrive\n\n load_dict_from_gdrive (directory, filename)\n\n\nsource\n\n\nsave_dict_to_gdrive\n\n save_dict_to_gdrive (d, directory, filename)\n\n\nsource\n\n\nDotDict\n\nsource\n\n\nseed_everything\n\n seed_everything (TORCH_SEED)\n\n\nsource\n\n\ncreate_model\n\n create_model (which_model, device, ps=8192, n_in=3)\n\n\nsource\n\n\nget_resnet_encoder\n\n get_resnet_encoder (model, n_in=3)\n\n\nsource\n\n\ncreate_aug_pipelines\n\n create_aug_pipelines (size, device, Augs={'flip_p1': 0.5, 'flip_p2': 0.5,\n                       'jitter_p1': 0.8, 'jitter_p2': 0.8, 'bw_p1': 0.2,\n                       'bw_p2': 0.2, 'blur_p1': 1.0, 'blur_p2': 0.1,\n                       'sol_p1': 0.0, 'sol_p2': 0.2, 'noise_p1': 0.0,\n                       'noise_p2': 0.0, 'resize_scale': (0.7, 1.0),\n                       'resize_ratio': (0.75, 1.3333333333333333),\n                       'rotate_deg': 45.0, 'rotate_p': 0.5, 'blur_r':\n                       (0.1, 2), 'blur_s': 13, 'sol_t': 0.1, 'sol_a': 0.1,\n                       'noise_std': 0.1}, TUNE_Augs={'blur_r': (0.1, 2),\n                       'blur_s': 13, 'flip_p': 0.25, 'rotate_p': 0.25,\n                       'jitter_p': 0.0, 'bw_p': 0.0, 'blur_p': 0.0,\n                       'resize_scale': (0.7, 1.0), 'resize_ratio': (0.75,\n                       1.3333333333333333), 'rotate_deg': 45.0},\n                       Val_Augs={'blur_r': (0.1, 2), 'blur_s': 13,\n                       'flip_p': 0.25, 'rotate_p': 0.25, 'jitter_p': 0.0,\n                       'bw_p': 0.0, 'blur_p': 0.0, 'resize_scale': (0.7,\n                       1.0), 'resize_ratio': (0.75, 1.3333333333333333),\n                       'rotate_deg': 45.0})\n\nCreate the BT pipelines, the tune and val pipelines\n\nTUNE_Augs\n\n{'blur_r': (0.1, 2),\n 'blur_s': 13,\n 'flip_p': 0.25,\n 'rotate_p': 0.25,\n 'jitter_p': 0.0,\n 'bw_p': 0.0,\n 'blur_p': 0.0,\n 'resize_scale': (0.7, 1.0),\n 'resize_ratio': (0.75, 1.3333333333333333),\n 'rotate_deg': 45.0}\n\n\n\nVal_Augs == TUNE_Augs\n\nTrue"
+  },
+  {
+    "objectID": "cancer_maintrain.html",
+    "href": "cancer_maintrain.html",
+    "title": "cancer_maintrain",
+    "section": "",
+    "text": "Setup: Surely there is a way to get rid of having to put this cell everywhere. hmmm.\nOr we can just copy paste / delete this in and out when needed. Either way, getting close to a decent workable workflow.\nsource"
+  },
+  {
+    "objectID": "cancer_maintrain.html#main-training-api",
+    "href": "cancer_maintrain.html#main-training-api",
+    "title": "cancer_maintrain",
+    "section": "main training api",
+    "text": "main training api\n\nsource\n\nLM\n\n LM (encoder, numout, numin=2048)\n\nBasic linear model\n\nsource\n\n\nmy_splitter_bt\n\n my_splitter_bt (m)\n\n\nsource\n\n\nmy_splitter\n\n my_splitter (m)\n\nVerify splitter works on CIFAR data:\nHere we check that splitters are given expected results:\nLinear:\nBT:\n\nsource\n\n\nLinearBt\n\n LinearBt (aug_pipelines, n_in, show_batch=False, print_augs=False,\n           data=None, tune_model_path=None, tune_save_after=None)\n\nBasic class handling tweaks of the training loop by changing a Learner in various events\n\nsource\n\n\nmain_tune\n\n main_tune (initial_weights, dls_tune, dls_test, aug_pipelines_tune,\n            aug_pipelines_test, int_to_classes, epochs=40, device='cuda',\n            encoder=None, tune_model_path=None, dict_path=None,\n            save_directory=None, description=None, results=None,\n            runs=range(0, 1))\n\nFine tune and save test results for supervised or bt initial weights\n\nsource\n\n\nMean_Results\n\n Mean_Results (results)\n\nGet mean classif report and display it\n\nsource\n\n\nget_xval_metrics\n\n get_xval_metrics (xval, yval, model, aug_pipelines_test, int_to_classes,\n                   numavg=3)\n\nget metrics from gives batch (xval,yval)\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nxval\n\n\n\n\n\nyval\n\n\n\n\n\nmodel\n\n\n\n\n\naug_pipelines_test\n\n\n\n\n\nint_to_classes\n\n\n\n\n\nnumavg\nint\n3\nnote that we can’t call dls.vocab as it might be smaller on the test set\n\n\n\n\nsource\n\n\nget_dls_metrics\n\n get_dls_metrics (dls, model, aug_pipelines_test, int_to_classes)\n\nget metrics from model and dataloader\n\n\n\n\n\n\n\n\nDetails\n\n\n\n\ndls\n\n\n\nmodel\n\n\n\naug_pipelines_test\n\n\n\nint_to_classes\nnote that we can’t call dls.vocab as it might be smaller on the test set\n\n\n\n\nsource\n\n\nfine_tune\n\n fine_tune (initial_weights, dls_tune, device, aug_pipelines_tune,\n            encoder=None, epochs=40, tune_model_path=None)\n\n\nsource\n\n\npredict_whole_model\n\n predict_whole_model (dls_test, model, aug_pipelines_test, numavg=3,\n                      criterion=FlattenedLoss of CrossEntropyLoss(),\n                      deterministic=False)\n\nPredicts the labels and probabilities for the entire test set using the specified model and data augmentation pipelines. Returns a dictionary containing the labels, probabilities, predicted labels, and accuracy.\nArgs: dls_test: The test dataloader. model: The trained model. aug_pipelines_test: The test data augmentation pipelines. numavg: The number of times to perform test-time augmentation. criterion: The loss function to use for computing the accuracy. deterministic: Whether to use deterministic computation.\nReturns: A dictionary containing the labels, probabilities, predicted labels, and accuracy."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "cancer-proj",
+    "section": "",
+    "text": "Package implementing results for masters thesis at UNSW and accompanying paper (please see: Publications). Comparison of supervised transfer learning vs. self-supervised transfer learning on cancer image dataset (ISIC) with limited labelled data.\nKeywords: Barlow Twins, 1cycle policy, transfer learning, cancer image classification, skin cancer, low labelled data"
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "cancer-proj",
+    "section": "Install",
+    "text": "Install\npip install git+https://github.com/hamish-haggerty/cancer-proj.git"
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "cancer-proj",
+    "section": "How to use",
+    "text": "How to use\nFull documentation and code examples are upcoming. For now, easiest way to use code is to open experiments/cancer_results.ipynb in Colab. You will need to download the dataset and save it to your google drive to use that notebook code as is (see start of notebook for details on dataset).\nTransfer learning can be done by a single call to main_tune function, once several variables have been defined, including the initial weights, dataloaders, augmentation pipelines, etc. This is all clear in cancer_results notebook.\nIn experiments/bt_cancer_results we also implement what we call pre-pretraining. This means we pretrain with Barlow Twins on the target data, using an already pretrained network (on ImageNet, with Barlow Twins) as the starting weights. This network is then fine tuned. The pre-pretraining involves reinitialising a projector network, and freezing the pretrained encoder while the projector only is updated for several epochs. In other words, we use transfer learning but in a self-supervised manner. The code can be used as a black box without understanding these details however (or, see upcoming paper)."
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "source\n\nfoo\n\n foo ()"
+  },
+  {
+    "objectID": "cancer_metrics.html",
+    "href": "cancer_metrics.html",
+    "title": "cancer_metrics",
+    "section": "",
+    "text": "source\n\n\n\n predict_model (xval, yval, model, aug_pipelines_test, numavg=3,\n                criterion=FlattenedLoss of CrossEntropyLoss(),\n                deterministic=False)\n\nNote that this assumes xval is entire validation set. If it doesn’t fit in memory, can’t use this guy\n\nsource\n\n\n\n\n predict_ensemble (yval, scores1, scores2)\n\nscores can be normalized (softmax) or not\n\nsource\n\n\n\n\n classification_report_wrapper (ypred, y, int_to_classes,\n                                print_report=True)\n\n\nsource\n\n\n\n\n format_classification_report (data_dict)\n\n\nsource\n\n\n\n\n Mean_Report (reports, classes)\n\n\nsource\n\n\n\n\n Mean_Results (results, vocab)\n\nGet mean classif report and display it\n\nsource\n\n\n\n\n print_confusion_matrix (ypred, y, vocab)\n\nWe monkey patch some plotting functions from scikitplot and edit them - we need greater control of legend etc\n\nsource\n\n\n\n\n plot_pr (ytest, probs, int_to_classes)\n\n\nsource\n\n\n\n\n plot_roc (ytest, probs, int_to_classes)\n\nFunctions to plot ROC curve and precision-recall curves:\n\nsource\n\n\n\n\n plot_pr (ytest, probs, int_to_classes)\n\n\nsource\n\n\n\n\n plot_roc (ytest, probs, int_to_classes)\n\n\nsource\n\n\n\n\n Pr_Dict (ytest, probs, int_to_classes=None)\n\nMostly used to verify results of plot (debug)\n\nsource\n\n\n\n\n Auc_Dict (ytest, probs, int_to_classes=None)\n\nMostly used to verify results of plot (debug)"
+  },
+  {
+    "objectID": "cancer_metrics.html#predictions-given-xval-and-yval",
+    "href": "cancer_metrics.html#predictions-given-xval-and-yval",
+    "title": "cancer_metrics",
+    "section": "",
+    "text": "source\n\n\n\n predict_model (xval, yval, model, aug_pipelines_test, numavg=3,\n                criterion=FlattenedLoss of CrossEntropyLoss(),\n                deterministic=False)\n\nNote that this assumes xval is entire validation set. If it doesn’t fit in memory, can’t use this guy\n\nsource\n\n\n\n\n predict_ensemble (yval, scores1, scores2)\n\nscores can be normalized (softmax) or not\n\nsource\n\n\n\n\n classification_report_wrapper (ypred, y, int_to_classes,\n                                print_report=True)\n\n\nsource\n\n\n\n\n format_classification_report (data_dict)\n\n\nsource\n\n\n\n\n Mean_Report (reports, classes)\n\n\nsource\n\n\n\n\n Mean_Results (results, vocab)\n\nGet mean classif report and display it\n\nsource\n\n\n\n\n print_confusion_matrix (ypred, y, vocab)\n\nWe monkey patch some plotting functions from scikitplot and edit them - we need greater control of legend etc\n\nsource\n\n\n\n\n plot_pr (ytest, probs, int_to_classes)\n\n\nsource\n\n\n\n\n plot_roc (ytest, probs, int_to_classes)\n\nFunctions to plot ROC curve and precision-recall curves:\n\nsource\n\n\n\n\n plot_pr (ytest, probs, int_to_classes)\n\n\nsource\n\n\n\n\n plot_roc (ytest, probs, int_to_classes)\n\n\nsource\n\n\n\n\n Pr_Dict (ytest, probs, int_to_classes=None)\n\nMostly used to verify results of plot (debug)\n\nsource\n\n\n\n\n Auc_Dict (ytest, probs, int_to_classes=None)\n\nMostly used to verify results of plot (debug)"
+  }
+]

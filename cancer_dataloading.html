@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Helper functions etc to load cancer data. Will also install nbdev etc if in Colab (not sure yet if I need this functionality)">
+
+<title>cancer-proj - cancer_dataloading</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="cancer-proj - cancer_dataloading">
+<meta property="og:description" content="Helper functions etc to load cancer data. Will also install nbdev etc if in Colab (not sure yet if I need this functionality)">
+<meta property="og:image" content="https://colab.research.google.com/assets/colab-badge.svg">
+<meta property="og:site-name" content="cancer-proj">
+<meta name="twitter:title" content="cancer-proj - cancer_dataloading">
+<meta name="twitter:description" content="Helper functions etc to load cancer data. Will also install nbdev etc if in Colab (not sure yet if I need this functionality)">
+<meta name="twitter:image" content="https://colab.research.google.com/assets/colab-badge.svg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">cancer-proj</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cancer_dataloading.html">cancer_dataloading</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">cancer-proj</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cancer_dataloading.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">cancer_dataloading</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cancer_maintrain.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">cancer_maintrain</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cancer_metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">cancer_metrics</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#get_difference" id="toc-get_difference" class="nav-link active" data-scroll-target="#get_difference">get_difference</a></li>
+  <li><a href="#label_func" id="toc-label_func" class="nav-link" data-scroll-target="#label_func">Label_Func</a></li>
+  <li><a href="#get_label_func_dict" id="toc-get_label_func_dict" class="nav-link" data-scroll-target="#get_label_func_dict">get_label_func_dict</a></li>
+  <li><a href="#get_class_from_id" id="toc-get_class_from_id" class="nav-link" data-scroll-target="#get_class_from_id">get_class_from_id</a></li>
+  <li><a href="#extract_id" id="toc-extract_id" class="nav-link" data-scroll-target="#extract_id">extract_id</a></li>
+  <li><a href="#process_path" id="toc-process_path" class="nav-link" data-scroll-target="#process_path">process_path</a></li>
+  <li><a href="#get_fnames" id="toc-get_fnames" class="nav-link" data-scroll-target="#get_fnames">get_fnames</a></li>
+  <li><a href="#load_dict_from_gdrive" id="toc-load_dict_from_gdrive" class="nav-link" data-scroll-target="#load_dict_from_gdrive">load_dict_from_gdrive</a></li>
+  <li><a href="#save_dict_to_gdrive" id="toc-save_dict_to_gdrive" class="nav-link" data-scroll-target="#save_dict_to_gdrive">save_dict_to_gdrive</a></li>
+  <li><a href="#dotdict" id="toc-dotdict" class="nav-link" data-scroll-target="#dotdict">DotDict</a></li>
+  <li><a href="#seed_everything" id="toc-seed_everything" class="nav-link" data-scroll-target="#seed_everything">seed_everything</a></li>
+  <li><a href="#create_model" id="toc-create_model" class="nav-link" data-scroll-target="#create_model">create_model</a></li>
+  <li><a href="#get_resnet_encoder" id="toc-get_resnet_encoder" class="nav-link" data-scroll-target="#get_resnet_encoder">get_resnet_encoder</a></li>
+  <li><a href="#create_aug_pipelines" id="toc-create_aug_pipelines" class="nav-link" data-scroll-target="#create_aug_pipelines">create_aug_pipelines</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/hamish-haggerty/cancer-proj/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">cancer_dataloading</h1>
+</div>
+
+<div>
+  <div class="description">
+    Helper functions etc to load cancer data. Will also install nbdev etc if in Colab (not sure yet if I need this functionality)
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<p><a href="https://colab.research.google.com/github/hamish-haggerty/cancer-proj/blob/main/nbs/cancer_dataloading.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a></p>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L50" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="get_difference" class="level3">
+<h3 class="anchored" data-anchor-id="get_difference">get_difference</h3>
+<blockquote class="blockquote">
+<pre><code> get_difference (x1, x2)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L44" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="label_func" class="level3">
+<h3 class="anchored" data-anchor-id="label_func">Label_Func</h3>
+<blockquote class="blockquote">
+<pre><code> Label_Func (name, label_func_dict)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L37" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="get_label_func_dict" class="level3">
+<h3 class="anchored" data-anchor-id="get_label_func_dict">get_label_func_dict</h3>
+<blockquote class="blockquote">
+<pre><code> get_label_func_dict (_fnames)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L28" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="get_class_from_id" class="level3">
+<h3 class="anchored" data-anchor-id="get_class_from_id">get_class_from_id</h3>
+<blockquote class="blockquote">
+<pre><code> get_class_from_id (string)</code></pre>
+</blockquote>
+<p>Given the identifier e.g.&nbsp;ISIC_0000000.jpg return the class label</p>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L20" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="extract_id" class="level3">
+<h3 class="anchored" data-anchor-id="extract_id">extract_id</h3>
+<blockquote class="blockquote">
+<pre><code> extract_id (string)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L17" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="process_path" class="level3">
+<h3 class="anchored" data-anchor-id="process_path">process_path</h3>
+<blockquote class="blockquote">
+<pre><code> process_path (name)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L57" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="get_fnames" class="level3">
+<h3 class="anchored" data-anchor-id="get_fnames">get_fnames</h3>
+<blockquote class="blockquote">
+<pre><code> get_fnames (_fnames, _labels, label_func)</code></pre>
+</blockquote>
+<p>How to load on colab:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data_dict = load_dict_from_gdrive(directory=save_directory,filename='data_dict') </span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># _fnames = data_dict['_fnames']</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># #_fnames = get_image_files(directory) </span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># #_fnames = [name for name in _fnames if 'downsampled' not in name.as_posix()] #otherwise load like this</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># test_eq(len(_fnames),len(data))</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#label_func_dict = get_label_func_dict(_fnames)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#fnames_train,fnames_valid,fnames_test = _fnames_dict['fnames_train'],_fnames_dict['fnames_valid'],_fnames_dict['fnames_test']</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L95" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="load_dict_from_gdrive" class="level3">
+<h3 class="anchored" data-anchor-id="load_dict_from_gdrive">load_dict_from_gdrive</h3>
+<blockquote class="blockquote">
+<pre><code> load_dict_from_gdrive (directory, filename)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L89" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="save_dict_to_gdrive" class="level3">
+<h3 class="anchored" data-anchor-id="save_dict_to_gdrive">save_dict_to_gdrive</h3>
+<blockquote class="blockquote">
+<pre><code> save_dict_to_gdrive (d, directory, filename)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L103" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="dotdict" class="level3">
+<h3 class="anchored" data-anchor-id="dotdict">DotDict</h3>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L111" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="seed_everything" class="level3">
+<h3 class="anchored" data-anchor-id="seed_everything">seed_everything</h3>
+<blockquote class="blockquote">
+<pre><code> seed_everything (TORCH_SEED)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L128" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="create_model" class="level3">
+<h3 class="anchored" data-anchor-id="create_model">create_model</h3>
+<blockquote class="blockquote">
+<pre><code> create_model (which_model, device, ps=8192, n_in=3)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L122" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="get_resnet_encoder" class="level3">
+<h3 class="anchored" data-anchor-id="get_resnet_encoder">get_resnet_encoder</h3>
+<blockquote class="blockquote">
+<pre><code> get_resnet_encoder (model, n_in=3)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/hamish-haggerty/cancer-proj/blob/main/cancer_proj/cancer_dataloading.py#L167" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="create_aug_pipelines" class="level3">
+<h3 class="anchored" data-anchor-id="create_aug_pipelines">create_aug_pipelines</h3>
+<blockquote class="blockquote">
+<pre><code> create_aug_pipelines (size, device, Augs={'flip_p1': 0.5, 'flip_p2': 0.5,
+                       'jitter_p1': 0.8, 'jitter_p2': 0.8, 'bw_p1': 0.2,
+                       'bw_p2': 0.2, 'blur_p1': 1.0, 'blur_p2': 0.1,
+                       'sol_p1': 0.0, 'sol_p2': 0.2, 'noise_p1': 0.0,
+                       'noise_p2': 0.0, 'resize_scale': (0.7, 1.0),
+                       'resize_ratio': (0.75, 1.3333333333333333),
+                       'rotate_deg': 45.0, 'rotate_p': 0.5, 'blur_r':
+                       (0.1, 2), 'blur_s': 13, 'sol_t': 0.1, 'sol_a': 0.1,
+                       'noise_std': 0.1}, TUNE_Augs={'blur_r': (0.1, 2),
+                       'blur_s': 13, 'flip_p': 0.25, 'rotate_p': 0.25,
+                       'jitter_p': 0.0, 'bw_p': 0.0, 'blur_p': 0.0,
+                       'resize_scale': (0.7, 1.0), 'resize_ratio': (0.75,
+                       1.3333333333333333), 'rotate_deg': 45.0},
+                       Val_Augs={'blur_r': (0.1, 2), 'blur_s': 13,
+                       'flip_p': 0.25, 'rotate_p': 0.25, 'jitter_p': 0.0,
+                       'bw_p': 0.0, 'blur_p': 0.0, 'resize_scale': (0.7,
+                       1.0), 'resize_ratio': (0.75, 1.3333333333333333),
+                       'rotate_deg': 45.0})</code></pre>
+</blockquote>
+<p>Create the BT pipelines, the tune and val pipelines</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>TUNE_Augs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>{'blur_r': (0.1, 2),
+ 'blur_s': 13,
+ 'flip_p': 0.25,
+ 'rotate_p': 0.25,
+ 'jitter_p': 0.0,
+ 'bw_p': 0.0,
+ 'blur_p': 0.0,
+ 'resize_scale': (0.7, 1.0),
+ 'resize_ratio': (0.75, 1.3333333333333333),
+ 'rotate_deg': 45.0}</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>Val_Augs <span class="op">==</span> TUNE_Augs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>True</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
